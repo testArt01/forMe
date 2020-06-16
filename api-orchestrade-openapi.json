@@ -1,0 +1,5511 @@
+{
+  "openapi" : "3.0.1",
+  "info" : {
+    "title" : "ORCHESTRADE API",
+    "description" : "Ce document présente les API de connexion à Orchestrade pour permettre d’échanger les documents commerciaux avec les partenaires. Les API sont en mode REST (protocole HTTPS), au format JSON. </br>",
+    "version" : "master"
+  },
+  "servers" : [
+    {
+      "url" : "https://dev.orchestrade.net/api"
+    }
+  ],
+  "tags" : [
+    {
+      "name" : "Informations",
+      "description" : "Cette section regroupe toutes les informations nécessaire à l'utilisation de notre API"
+    },
+    {
+      "name" : "Authentification (TOKEN)"
+    },
+    {
+      "name" : "Flux Commande (ORDERS)"
+    },
+    {
+      "name" : "Flux Réponse à la commande (ORDRSP)"
+    },
+    {
+      "name" : "Flux Avis d'expédition (DESADV)"
+    },
+    {
+      "name" : "Flux Suivi des commandes (OSTRPT)"
+    },
+    {
+      "name" : "Flux Facture (INVOIC)"
+    },
+    {
+      "name" : "Flux Logistiques"
+    }
+  ],
+  "paths" : {
+    "/" : {
+      "options" : {
+        "tags" : [
+          "Informations"
+        ],
+        "summary" : "Introduction à ORCHESTRADE",
+        "description" : "**Rest**\r\n--------\r\n<a href=\"https://en.wikipedia.org/wiki/Representational_state_transfer\">REST</a>\r\n\r\nLa plateforme Orchestrade est accessible via des API en mode REST (protocole HTTPS), au format JSON.\r\n\r\n\r\n**HTTP Authentication**\r\n-----------------------\r\n\r\n<a href=\"https://en.wikipedia.org/wiki/Basic_access_authentication\">HTTP Authentication</a>\r\n\r\nLes API nécessitent l’utilisation d’un token, obtenu après authentification, et qui doit être transmis dans chaque appel API.\r\nLa durée de vie du token est de 24 heures actuellement.\r\n\r\n\r\n**HTTP-Status-Codes**\r\n---------------------\r\n\r\n<a href=\"https://en.wikipedia.org/wiki/List_of_HTTP_status_codes\">HTTP Status Codes</a>\r\n\r\nUn code statut HTTP est renvoyé avec la réponse JSON :\r\n\r\n| Code | Description |\r\n| ------ | ----------- |\r\n| 200 | Tout est OK. |\r\n| 201 | Le document a été correctement soumis. |\r\n| 204 | Réponse à une demande de liste pour laquelle il n'y a aucun résultat. |\r\n| 400 | L'authentification est incorrecte. |\r\n| 401 | Le document soumis n'a pas pu être correctement analysé. |\r\n| 404 | Le endPoint API n'est pas configuré pour votre environnement. |\r\n\r\n\r\n\r\n\r\n**Synoptique de collecte des documents API GET**\r\n------------------------------------------------\r\n\r\nPour collecter les documents (ie. Commande, Avis d'expédition,...), il faut procéder comme suit :\r\n\r\n1- Effectuer une première requête pour obtenir la liste des documents qui n'ont pas encore été collectés. La liste retournée correspond à la liste des identifiants (TransactionId) de chacun des documents à collecter.\r\n\r\n2- La récupération des documents se fait unitairement à partir des identifiants des documents (TransactionId) récupérés dans la première requête.\r\n\r\n** Exemple : Récupération des commandes (ORDERS)\r\n\r\n**1ère étape** --> requête \"GET /api/ORDERS (liste)\" : https://dev.orchestrade.net/api/ORDERS?token={{token}}\r\n\r\n**2ème étape** --> requête(s) \"GET /api/ORDERS\" : https://dev.orchestrade.net/api/ORDERS/{{TransactionId}}?token={{token}}\r\n\r\n\r\n\r\n**URLs & End Points**\r\n---------------------\r\n\r\n**URLs :**\r\n\r\nURL de Test : https://preprod.orchestrade.net/api\r\n\r\nURL de Production : https://edi.orchestrade.net/api\r\n\r\n**Endpoints :**\r\n\r\n/ORDERS => Flux Commandes\r\n\r\n/ORDRSP => Flux Réponse à la commande\r\n\r\n/DESADV => Flux Avis d'expédition\r\n\r\n/OSTRPT => Flux Suivi des commandes\r\n\r\n/INVOIC => Flux Facture\r\n\r\n/INVRPT => Flux Etat de stock\r\n\r\n/HANMOV => Flux Ordres de prestation logistique",
+        "operationId" : "rest",
+        "responses" : {
+          "default" : {
+            "description" : "default response"
+          }
+        }
+      }
+    },
+    "/auth/token" : {
+      "get" : {
+        "tags" : [
+          "Authentification (TOKEN)"
+        ],
+        "summary" : "GET/api/auth",
+        "description" : "Permet d’obtenir un token de session.",
+        "operationId" : "get-api-auth",
+        "parameters" : [
+          {
+            "name" : "login",
+            "in" : "query",
+            "required" : true,
+            "schema" : {
+              "type" : "string"
+            }
+          },
+          {
+            "name" : "password",
+            "in" : "query",
+            "required" : true,
+            "schema" : {
+              "type" : "string",
+              "format" : "password"
+            }
+          }
+        ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "type" : "object",
+                "example" : "{curl --location --request GET 'https://dev.orchestrade.net/api/auth/token?login={{login}}&password={{password}}'}"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "properties" : {
+                    "token" : {
+                      "type" : "string",
+                      "description" : "token utilisateur",
+                      "example" : "73b348efc7abef6bedfaa6711895436659a7f55f1488e7aa79fbf1aa5155a4eaa37965c8fad27498"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ORDERS" : {
+      "get" : {
+        "tags" : [
+          "Flux Commande (ORDERS)"
+        ],
+        "summary" : "GET/api/ORDERS(liste)",
+        "description" : "Liste des commandes",
+        "operationId" : "get-api-orders-liste",
+        "parameters" : [
+          {
+            "$ref" : "#/components/parameters/Token"
+          }
+        ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/listReponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "tags" : [
+          "Flux Commande (ORDERS)"
+        ],
+        "summary" : "POST/api/ORDERS",
+        "description" : "Emission des commandes",
+        "operationId" : "post-api-orders",
+        "parameters" : [
+          {
+            "$ref" : "#/components/parameters/Token"
+          }
+        ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/schemaDocCommande"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "description" : "Created"
+          }
+        }
+      }
+    },
+    "/ORDERS/{TransactionId}" : {
+      "get" : {
+        "tags" : [
+          "Flux Commande (ORDERS)"
+        ],
+        "summary" : "GET/api/ORDERS",
+        "description" : "Réception des commandes",
+        "operationId" : "get-api-orders",
+        "parameters" : [
+          {
+            "name" : "TransactionId",
+            "in" : "path",
+            "required" : true,
+            "schema" : {
+              "type" : "string"
+            }
+          },
+          {
+            "$ref" : "#/components/parameters/Token"
+          }
+        ],
+        "responses" : {
+          "200" : {
+            "description" : "Commande ok",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/schemaDocCommande"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ORDRSP/{TransactionId}" : {
+      "get" : {
+        "tags" : [
+          "Flux Réponse à la commande (ORDRSP)"
+        ],
+        "summary" : "GET/api/ORDRSP",
+        "description" : "Réception de la confirmation de commande.",
+        "operationId" : "get-api-ordrsp",
+        "parameters" : [
+          {
+            "name" : "TransactionId",
+            "in" : "path",
+            "required" : true,
+            "schema" : {
+              "type" : "string"
+            }
+          },
+          {
+            "$ref" : "#/components/parameters/Token"
+          }
+        ],
+        "responses" : {
+          "default" : {
+            "description" : "default response"
+          }
+        }
+      }
+    },
+    "/ORDRSP" : {
+      "get" : {
+        "tags" : [
+          "Flux Réponse à la commande (ORDRSP)"
+        ],
+        "summary" : "GET/api/ORDRSP(liste)",
+        "description" : "Liste des commandes",
+        "operationId" : "get-api-ordrsp-liste",
+        "parameters" : [
+          {
+            "$ref" : "#/components/parameters/Token"
+          }
+        ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/listReponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "tags" : [
+          "Flux Réponse à la commande (ORDRSP)"
+        ],
+        "summary" : "POST/api/ORDRSP",
+        "description" : "Emission du message de réception de commande",
+        "operationId" : "post-api-ordrsp",
+        "parameters" : [
+          {
+            "$ref" : "#/components/parameters/Token"
+          }
+        ],
+        "responses" : {
+          "201" : {
+            "description" : "Created"
+          }
+        }
+      }
+    },
+    "/DESADV" : {
+      "get" : {
+        "tags" : [
+          "Flux Avis d'expédition (DESADV)"
+        ],
+        "summary" : "GET/api/DESADV(liste)",
+        "description" : "Liste des Avis d’expédition",
+        "operationId" : "get-api-desadv-liste",
+        "parameters" : [
+          {
+            "$ref" : "#/components/parameters/Token"
+          }
+        ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/listReponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "tags" : [
+          "Flux Avis d'expédition (DESADV)"
+        ],
+        "summary" : "POST/api/DESADV",
+        "description" : "Emission des avis d’expédition",
+        "operationId" : "post-api-desadv",
+        "parameters" : [
+          {
+            "$ref" : "#/components/parameters/Token"
+          }
+        ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/schemaDocExp"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "default" : {
+            "description" : "default response"
+          }
+        }
+      }
+    },
+    "/DESADV/{TransactionId}" : {
+      "get" : {
+        "tags" : [
+          "Flux Avis d'expédition (DESADV)"
+        ],
+        "summary" : "GET/api/DESADV",
+        "description" : "Réception des Avis d’expédition",
+        "operationId" : "get-api-desadv",
+        "parameters" : [
+          {
+            "name" : "TransactionId",
+            "in" : "path",
+            "required" : true,
+            "schema" : {
+              "type" : "string"
+            }
+          },
+          {
+            "$ref" : "#/components/parameters/Token"
+          }
+        ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/schemaDocExp"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/OSTRPT" : {
+      "get" : {
+        "tags" : [
+          "Flux Suivi des commandes (OSTRPT)"
+        ],
+        "summary" : "GET/api/OSTRPT(liste)",
+        "description" : "Liste des Avis d’expédition",
+        "operationId" : "get-api-ostrpt-liste",
+        "parameters" : [
+          {
+            "$ref" : "#/components/parameters/Token"
+          }
+        ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/listReponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "tags" : [
+          "Flux Suivi des commandes (OSTRPT)"
+        ],
+        "summary" : "POST/api/OSTRPT",
+        "description" : "Emission des statuts de commande",
+        "operationId" : "post-api-ostrpt",
+        "parameters" : [
+          {
+            "$ref" : "#/components/parameters/Token"
+          }
+        ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/schemaStatOrd"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "description" : "Created"
+          }
+        }
+      }
+    },
+    "/OSTRPT/{TransactionId}" : {
+      "get" : {
+        "tags" : [
+          "Flux Suivi des commandes (OSTRPT)"
+        ],
+        "summary" : "GET/api/OSTRPT",
+        "description" : "Réception des status des commande.",
+        "operationId" : "get-api-ostrpt",
+        "parameters" : [
+          {
+            "name" : "TransactionId",
+            "in" : "path",
+            "required" : true,
+            "schema" : {
+              "type" : "string"
+            }
+          },
+          {
+            "$ref" : "#/components/parameters/Token"
+          }
+        ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/schemaStatOrd"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/INVOIC" : {
+      "get" : {
+        "tags" : [
+          "Flux Facture (INVOIC)"
+        ],
+        "summary" : "GET/api/INVOIC(liste)",
+        "description" : "Liste des factures",
+        "operationId" : "get-api-invoic-liste",
+        "parameters" : [
+          {
+            "$ref" : "#/components/parameters/Token"
+          }
+        ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/listReponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "tags" : [
+          "Flux Facture (INVOIC)"
+        ],
+        "summary" : "POST/api/INVOIC",
+        "description" : "Emission des factures",
+        "operationId" : "post-api-invoic",
+        "parameters" : [
+          {
+            "$ref" : "#/components/parameters/Token"
+          }
+        ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/DocDematDoc"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "description" : "Created"
+          }
+        }
+      }
+    },
+    "/INVOIC/{TransactionId}" : {
+      "get" : {
+        "tags" : [
+          "Flux Facture (INVOIC)"
+        ],
+        "summary" : "GET/api/INVOIC",
+        "description" : "Réception des factures",
+        "operationId" : "get-api-invoic",
+        "parameters" : [
+          {
+            "name" : "TransactionId",
+            "in" : "path",
+            "required" : true,
+            "schema" : {
+              "type" : "string"
+            }
+          },
+          {
+            "$ref" : "#/components/parameters/Token"
+          }
+        ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/DocDematDoc"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/HANMOV" : {
+      "get" : {
+        "tags" : [
+          "Flux Logistiques"
+        ],
+        "summary" : "GET/api/HANMOV(liste)",
+        "description" : "Liste des ordres de prestation logistique",
+        "operationId" : "get-api-hanmov-liste",
+        "parameters" : [
+          {
+            "$ref" : "#/components/parameters/Token"
+          }
+        ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/listReponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "tags" : [
+          "Flux Logistiques"
+        ],
+        "summary" : "POST/api/HANMOV",
+        "description" : "Emission des ordres de prestation logistique.\r\n\r\n* Le message est un message mono ordre de prestation ou mono instruction. Tous les ordres de prestation retenus sont :\r\n\r\n  - A préparer pour expédition (PFS)\r\n  - A détruire (DES)\r\n  - A bloquer (X3)\r\n  - A débloquer (X2)\r\n  - Changer de lieu (MOV)\r\n  - A reconditionner (PAC)\r\n  - A déballer/écretage (UNP)\r\n\r\n* Les instructions suivantes ne sont pas gérées :\r\n  - A prélever sur le stock (picking)\r\n  - A prélever sur le stock (picking) dans l’ordre.\r\n  \r\n\r\n* La donnée [instructionManutention] permet de préciser le type d'ordre de prestation :\r\n\r\n  - PFS => Ordre de préparation pour expédition\r\n  - DES => Ordre de destruction\r\n  - X3  => Ordre de blocage\r\n  - X2  => Ordre de déblocage\r\n  - MOV => Ordre de déplacement des marchandises\r\n  - PAC => A reconditionner\r\n  - UNP => déballer/écretage",
+        "operationId" : "post-api-hanmov",
+        "parameters" : [
+          {
+            "$ref" : "#/components/parameters/Token"
+          }
+        ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/schemaDocOrdPresta"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "description" : "Created"
+          }
+        }
+      }
+    },
+    "/HANMOV/{TransactionId}" : {
+      "get" : {
+        "tags" : [
+          "Flux Logistiques"
+        ],
+        "summary" : "GET/api/HANMOV",
+        "description" : "Réception des ordres de prestation logistique.\r\n\r\n* Le message est un message mono ordre de prestation ou mono instruction. Tous les ordres de prestation retenus sont :\r\n  - A préparer pour expédition (PFS)\r\n  - A détruire (DES)\r\n  - A bloquer (X3)\r\n  - A débloquer (X2)\r\n  - Changer de lieu (MOV)\r\n  - A reconditionner (PAC)\r\n  - A déballer/écretage (UNP)\r\n\r\n* Les instructions suivantes ne sont pas gérées :\r\n  - A prélever sur le stock (picking)\r\n  - A prélever sur le stock (picking) dans l’ordre.\r\n \r\n* La donnée [instructionManutention] permet d'identifier le type d'ordre de prestation :\r\n\r\n  - PFS => Ordre de préparation pour expédition\r\n  - DES => Ordre de destruction\r\n  - X3  => Ordre de blocage\r\n  - X2  => Ordre de déblocage\r\n  - MOV => Ordre de déplacement des marchandises\r\n  - PAC => A reconditionner\r\n  - UNP => déballer/écretage",
+        "operationId" : "get-api-hanmov",
+        "parameters" : [
+          {
+            "name" : "TransactionId",
+            "in" : "path",
+            "required" : true,
+            "schema" : {
+              "type" : "string"
+            }
+          },
+          {
+            "$ref" : "#/components/parameters/Token"
+          }
+        ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/schemaDocOrdPresta"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/INVRPT" : {
+      "get" : {
+        "tags" : [
+          "Flux Logistiques"
+        ],
+        "summary" : "GET/api/INVRPT(liste)",
+        "description" : "Liste des rapports d'état de stock",
+        "operationId" : "get-api-invrpt-liste",
+        "parameters" : [
+          {
+            "$ref" : "#/components/parameters/Token"
+          }
+        ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/listReponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "tags" : [
+          "Flux Logistiques"
+        ],
+        "summary" : "POST/api/INVRPT",
+        "description" : "Emission des états de stock.\r\nMessage donnant les informations sur les inventaires effectués.\r\nL'Etat d'inventaire peut être émis par tous les partenaires.",
+        "operationId" : "post-api-invrpt",
+        "parameters" : [
+          {
+            "$ref" : "#/components/parameters/Token"
+          }
+        ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/schemaDocEtatStock"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "description" : "Created"
+          }
+        }
+      }
+    },
+    "/INVRPT/{TransactionId}" : {
+      "get" : {
+        "tags" : [
+          "Flux Logistiques"
+        ],
+        "summary" : "GET/api/INVRPT",
+        "description" : "Réception des états de stock.\r\nMessage donnant les informations sur les inventaires effectués.\r\nL'Etat d'inventaire peut être émis par tous les partenaires.",
+        "operationId" : "get-api-invrpt",
+        "parameters" : [
+          {
+            "name" : "TransactionId",
+            "in" : "path",
+            "required" : true,
+            "schema" : {
+              "type" : "string"
+            }
+          },
+          {
+            "$ref" : "#/components/parameters/Token"
+          }
+        ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/schemaDocEtatStock"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "listReponse" : {
+        "type" : "object",
+        "properties" : {
+          "TransactionId" : {
+            "type" : "string",
+            "example" : "911007240010000004"
+          },
+          "Sender" : {
+            "type" : "string",
+            "example" : "SENDER"
+          },
+          "SenderName" : {
+            "type" : "string",
+            "example" : "SENDERNAME"
+          },
+          "documentRef" : {
+            "type" : "string"
+          }
+        }
+      },
+      "ExpeditionType" : {
+        "required" : [
+          "unite"
+        ],
+        "type" : "object",
+        "properties" : {
+          "nombreUnitesExpedition" : {
+            "type" : "integer",
+            "description" : "Nombre d'unités d'expédition",
+            "format" : "int32"
+          },
+          "poidsTotal" : {
+            "$ref" : "#/components/schemas/poidsType"
+          },
+          "unite" : {
+            "type" : "array",
+            "description" : "Unités expédiées",
+            "items" : {
+              "$ref" : "#/components/schemas/uniteType"
+            }
+          }
+        }
+      },
+      "GTIN" : {
+        "description" : "GTIN",
+        "allOf" : [
+          {
+            "$ref" : "#/components/schemas/identComplemetaireType"
+          },
+          {
+            "type" : "object"
+          }
+        ]
+      },
+      "colisage" : {
+        "required" : [
+          "niveauColisage"
+        ],
+        "type" : "object",
+        "properties" : {
+          "niveauColisage" : {
+            "type" : "string",
+            "description" : "Niveau de colisage (PALETT, BOXPAL, BOX)"
+          },
+          "qte" : {
+            "type" : "integer",
+            "description" : "Quantité de colisage",
+            "format" : "int32"
+          },
+          "info" : {
+            "type" : "array",
+            "description" : "informations de conditionnement (en code)",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "conditionsConditionnement" : {
+            "type" : "string",
+            "description" : "Conditions de conditionnement"
+          },
+          "poidsUnitaire" : {
+            "$ref" : "#/components/schemas/poidsType"
+          },
+          "dimensions" : {
+            "$ref" : "#/components/schemas/dimensions"
+          },
+          "identificationTypeEmballage" : {
+            "type" : "string",
+            "description" : "identification du type d'emballage en code"
+          },
+          "typeEmballage" : {
+            "type" : "string",
+            "description" : "description du type d'emballage"
+          },
+          "conditionsRetour" : {
+            "type" : "string",
+            "description" : "Responsabilité du paiement des frais de retour d'emballage (en code)"
+          },
+          "qteParConditionnement" : {
+            "type" : "integer",
+            "description" : "PCB",
+            "format" : "int32"
+          },
+          "uteQteParConditionnement" : {
+            "type" : "string",
+            "description" : "Unité de mesure du PCB"
+          },
+          "qteContenue" : {
+            "type" : "number",
+            "description" : "Quantité contenue",
+            "format" : "double"
+          },
+          "uteQteContenue" : {
+            "type" : "string",
+            "description" : "Unité de mesure de la quantité contenue"
+          },
+          "marquages" : {
+            "type" : "array",
+            "description" : "Marquages",
+            "items" : {
+              "$ref" : "#/components/schemas/marquagesType"
+            }
+          },
+          "qteParSousConditionnement" : {
+            "type" : "string",
+            "description" : "Quantité SPCB (Sous Par Combien)"
+          },
+          "uteQteParSousConditionnement" : {
+            "type" : "string",
+            "description" : "Unité de mesure SPCB"
+          }
+        }
+      },
+      "descriptionObjet" : {
+        "type" : "object",
+        "properties" : {
+          "typeDescCode" : {
+            "type" : "string",
+            "description" : "Type de la description (en code, cf. IMD.7077)"
+          },
+          "libelle" : {
+            "type" : "string",
+            "description" : "Libellé"
+          }
+        }
+      },
+      "dimensions" : {
+        "type" : "object",
+        "properties" : {
+          "hauteur" : {
+            "type" : "number",
+            "description" : "Hauteur",
+            "format" : "double"
+          },
+          "largeur" : {
+            "type" : "number",
+            "description" : "Largeur",
+            "format" : "double"
+          },
+          "longueur" : {
+            "type" : "number",
+            "description" : "Longueur",
+            "format" : "double"
+          },
+          "uniteMesure" : {
+            "type" : "string",
+            "description" : "Unité de mesure"
+          }
+        },
+        "description" : "Dimensions"
+      },
+      "documentExpedition" : {
+        "required" : [
+          "entete",
+          "Expedition"
+        ],
+        "type" : "object",
+        "properties" : {
+          "version" : {
+            "type" : "string"
+          },
+          "entete" : {
+            "$ref" : "#/components/schemas/entete"
+          },
+          "Expedition" : {
+            "$ref" : "#/components/schemas/ExpeditionType"
+          },
+          "pied" : {
+            "$ref" : "#/components/schemas/pied"
+          }
+        }
+      },
+      "equipement" : {
+        "type" : "object",
+        "properties" : {
+          "type" : {
+            "type" : "string"
+          },
+          "numero" : {
+            "type" : "string"
+          }
+        },
+        "description" : "Equipement"
+      },
+      "fraisManutention" : {
+        "required" : [
+          "montant"
+        ],
+        "type" : "object",
+        "properties" : {
+          "montant" : {
+            "type" : "number",
+            "description" : "Montant",
+            "format" : "double"
+          },
+          "devise" : {
+            "type" : "string",
+            "description" : "Devise"
+          }
+        },
+        "description" : "Frais de manutention"
+      },
+      "identComplemetaireType" : {
+        "required" : [
+          "code"
+        ],
+        "type" : "object",
+        "properties" : {
+          "qualifiant" : {
+            "type" : "string",
+            "description" : "Qualifiant (1=Ident. compll, 4=Remplacé, 5=Ident. article)"
+          },
+          "code" : {
+            "type" : "string",
+            "description" : "Code"
+          },
+          "typeCode" : {
+            "type" : "string",
+            "description" : "Type du code"
+          }
+        }
+      },
+      "identificationComplementaireProduit" : {
+        "type" : "object",
+        "properties" : {
+          "variantePromo" : {
+            "$ref" : "#/components/schemas/identComplemetaireType"
+          },
+          "refArticleFournisseur" : {
+            "$ref" : "#/components/schemas/identComplemetaireType"
+          },
+          "refArticleClient" : {
+            "$ref" : "#/components/schemas/identComplemetaireType"
+          },
+          "numeroSerie" : {
+            "$ref" : "#/components/schemas/identComplemetaireType"
+          }
+        }
+      },
+      "identificationLieuType" : {
+        "type" : "object",
+        "properties" : {
+          "qual" : {
+            "type" : "integer",
+            "description" : "Qualifiant",
+            "format" : "int32"
+          },
+          "code" : {
+            "type" : "string",
+            "description" : "Code"
+          },
+          "nom" : {
+            "type" : "string",
+            "description" : "Nom"
+          },
+          "numeroAgrement" : {
+            "type" : "string",
+            "description" : "Numéro de l'agrement"
+          }
+        }
+      },
+      "identificationUE" : {
+        "required" : [
+          "unitesLogistique"
+        ],
+        "type" : "object",
+        "properties" : {
+          "unitesLogistique" : {
+            "$ref" : "#/components/schemas/unitesLogistique"
+          }
+        },
+        "description" : "Identification des marques et etiquette sur les différentes unités logistique"
+      },
+      "infoAchat" : {
+        "required" : [
+          "fonction",
+          "texteReference",
+          "organisme",
+          "langue"
+        ],
+        "type" : "object",
+        "properties" : {
+          "fonction" : {
+            "type" : "string",
+            "description" : "fonction d'utilisation"
+          },
+          "texteReference" : {
+            "type" : "string",
+            "description" : "reference à un texte standard"
+          },
+          "organisme" : {
+            "type" : "string"
+          },
+          "langue" : {
+            "type" : "string",
+            "description" : "code ISO 639"
+          }
+        },
+        "description" : "Informations achat"
+      },
+      "infoEquipement" : {
+        "required" : [
+          "equipement"
+        ],
+        "type" : "object",
+        "properties" : {
+          "equipement" : {
+            "$ref" : "#/components/schemas/equipement"
+          },
+          "refScelle" : {
+            "$ref" : "#/components/schemas/reference"
+          },
+          "responsableScelle" : {
+            "$ref" : "#/components/schemas/acteur"
+          }
+        },
+        "description" : "Information équipement"
+      },
+      "ligne" : {
+        "required" : [
+          "numLigne",
+          "qteExpediee"
+        ],
+        "type" : "object",
+        "properties" : {
+          "numLigne" : {
+            "type" : "integer",
+            "description" : "Numéro de ligne",
+            "format" : "int32"
+          },
+          "numLigneCommande" : {
+            "type" : "integer",
+            "description" : "Numéro de ligne de la commande\nProjet : UGAP",
+            "format" : "int32"
+          },
+          "statutExpedition" : {
+            "type" : "string",
+            "description" : "LIN-1229 (Exemple : Z00 Shipping 100 percent of ordered product\nZ03 Canceled out of stock\nZ70 Amazon initiated line item cancel)"
+          },
+          "GTIN" : {
+            "$ref" : "#/components/schemas/GTIN"
+          },
+          "identificationComplementaireProduit" : {
+            "$ref" : "#/components/schemas/identificationComplementaireProduit"
+          },
+          "description" : {
+            "$ref" : "#/components/schemas/descriptionObjet"
+          },
+          "gamme" : {
+            "type" : "string",
+            "description" : "Gamme (en code, cf. IMD.7081)"
+          },
+          "typeUnite" : {
+            "type" : "string",
+            "description" : "Type de l'unité (en code, cf. IMD.C273-7009, Description codée IMD+C++DU::9' )"
+          },
+          "qteExpediee" : {
+            "type" : "number",
+            "description" : "Quantite expediee",
+            "format" : "double"
+          },
+          "uteQteExpediee" : {
+            "type" : "string",
+            "description" : "Unite de la quantite expediee"
+          },
+          "qteExpedieeCumulee" : {
+            "type" : "number",
+            "description" : "Quantite expediee cumulee",
+            "format" : "double"
+          },
+          "uteQteExpedieeCumulee" : {
+            "type" : "string",
+            "description" : "Unite de la quantite expediee cumulee"
+          },
+          "pdsQteExpediee" : {
+            "type" : "number",
+            "description" : "Poids de la quantite expediee",
+            "format" : "double"
+          },
+          "utePdsQteExpediee" : {
+            "type" : "string",
+            "description" : "Unité du poids de la quantite expediee"
+          },
+          "qteParConditionnement" : {
+            "type" : "integer",
+            "description" : "PCB",
+            "format" : "int32"
+          },
+          "uteQteParConditionnement" : {
+            "type" : "string",
+            "description" : "Unité de mesure PCB"
+          },
+          "qteParSousConditionnement" : {
+            "type" : "integer",
+            "description" : "SPCB",
+            "format" : "int32"
+          },
+          "uteQteParSousConditionnement" : {
+            "type" : "string",
+            "description" : "Unité de mesure SPCB"
+          },
+          "qteGratuite" : {
+            "type" : "integer",
+            "description" : "Quantité gratuite -  Dans le cas où des articles gratuits sont livrés mais n'ont pas été commandés, le code 192 est utilisé pour\nindiquer la quantité gratuite livrée.",
+            "format" : "int32"
+          },
+          "uteQteGratuite" : {
+            "type" : "string",
+            "description" : "Unité de la quantité gratuite"
+          },
+          "qteGratuiteComprise" : {
+            "type" : "integer",
+            "description" : "Quantité gratuite comprise -  Dans le cas où des articles gratuits et commandés sont livrés, le code 193 est utilisé pour indiquer la quantité\ngratuite livrée.",
+            "format" : "int32"
+          },
+          "uteQteGratuiteComprise" : {
+            "type" : "string",
+            "description" : "Unité de la quantité gratuite comprise"
+          },
+          "qteRetournee" : {
+            "type" : "number",
+            "description" : "Quantité retournée",
+            "format" : "double"
+          },
+          "uteQteRetournee" : {
+            "type" : "string",
+            "description" : "Unité de la quantité retournée"
+          },
+          "DLC" : {
+            "type" : "object",
+            "description" : "Date d'expiration de l'article (DLC)"
+          },
+          "DLUO" : {
+            "type" : "object",
+            "description" : "Date limite d'utilisation optimal de l'article (DLUO)"
+          },
+          "numLot" : {
+            "type" : "string",
+            "description" : "Numéro de lot"
+          },
+          "dateProduction" : {
+            "type" : "object",
+            "description" : "Date de production/fabrication"
+          },
+          "dateConditionnement" : {
+            "type" : "object",
+            "description" : "Date de conditionnement"
+          },
+          "dateExpedition" : {
+            "$ref" : "#/components/schemas/dates"
+          },
+          "identificationLieuFabrication" : {
+            "$ref" : "#/components/schemas/identificationLieuType"
+          },
+          "identificationLieuLivraison" : {
+            "$ref" : "#/components/schemas/identificationLieuType"
+          },
+          "identificationLieu" : {
+            "type" : "array",
+            "description" : "Identification d'un lieu/emplacement",
+            "items" : {
+              "$ref" : "#/components/schemas/identificationLieuType"
+            }
+          },
+          "qteManquante" : {
+            "$ref" : "#/components/schemas/qteManquante"
+          },
+          "referenceList" : {
+            "$ref" : "#/components/schemas/referenceListType"
+          },
+          "referenceLigne" : {
+            "type" : "array",
+            "description" : "Référence ligne",
+            "items" : {
+              "$ref" : "#/components/schemas/reference"
+            }
+          },
+          "identificationConteneurRetournable" : {
+            "type" : "string",
+            "description" : "Identification du container retournable"
+          },
+          "matiereGrasse" : {
+            "$ref" : "#/components/schemas/matiereGrasse"
+          },
+          "montantUnite" : {
+            "type" : "number",
+            "description" : "Montant par unité",
+            "format" : "double"
+          },
+          "devise" : {
+            "type" : "string",
+            "description" : "Devise (monnaie en code)"
+          },
+          "poids" : {
+            "$ref" : "#/components/schemas/poids"
+          },
+          "comment" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/commentType"
+            }
+          }
+        },
+        "description" : "Ligne article commandée"
+      },
+      "ligneExpeditionType" : {
+        "type" : "object",
+        "properties" : {
+          "descriptionComplementaire" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/descriptionComplementaire"
+            }
+          }
+        }
+      },
+      "marquageAcheteur" : {
+        "type" : "object",
+        "properties" : {
+          "marquage" : {
+            "type" : "array",
+            "description" : "Marquage",
+            "items" : {
+              "type" : "string"
+            }
+          }
+        },
+        "description" : "Marquage conforme aux spécifications de l'acheteur"
+      },
+      "marquagesType" : {
+        "type" : "object",
+        "properties" : {
+          "sscc" : {
+            "type" : "string",
+            "description" : "Numéro sequentiel de colis"
+          },
+          "gtin" : {
+            "type" : "string",
+            "description" : "GTIN (code EAN/UPC)"
+          },
+          "numLot" : {
+            "type" : "string",
+            "description" : "Numéro de lot"
+          },
+          "DLUO" : {
+            "type" : "object",
+            "description" : "Date limite d'utilisation optimal"
+          },
+          "DLC" : {
+            "type" : "object",
+            "description" : "Date limite de consomation"
+          },
+          "dateFabrication" : {
+            "type" : "object",
+            "description" : "Date de fabrication/production"
+          },
+          "dateCongelation" : {
+            "type" : "object",
+            "description" : "Date de congelation"
+          },
+          "poidsUnitaireNet" : {
+            "type" : "number",
+            "description" : "Poids unitaire net",
+            "format" : "double"
+          },
+          "codeColisNonMarque" : {
+            "type" : "string",
+            "description" : "Code EAN/DUN du colis non marqué"
+          },
+          "numCarteKanban" : {
+            "type" : "string",
+            "description" : "Numéro de carte kanban"
+          },
+          "marquageAcheteur" : {
+            "$ref" : "#/components/schemas/marquageAcheteur"
+          },
+          "numSeqColis" : {
+            "type" : "string",
+            "description" : "Numéro séquentiel de colis dans l'avis d'expédition (1,2,3,...)"
+          },
+          "numEnregistrement" : {
+            "type" : "string",
+            "description" : "Numéro enregistrement\nProjet : UGAP"
+          },
+          "familleProduit" : {
+            "type" : "string"
+          },
+          "codeTracking" : {
+            "type" : "string",
+            "description" : "Code tracking du colis"
+          },
+          "urlTracking" : {
+            "type" : "string",
+            "description" : "URL associé au code tracking (Accès au suivi)"
+          }
+        }
+      },
+      "matiereGrasse" : {
+        "required" : [
+          "pourcentage"
+        ],
+        "type" : "object",
+        "properties" : {
+          "pourcentage" : {
+            "type" : "number",
+            "description" : "Pourcentage de matières grasses",
+            "format" : "double"
+          },
+          "mesurePourcentage" : {
+            "type" : "string",
+            "description" : "Mesure du pourcentage de matières grasses"
+          }
+        },
+        "description" : "Matières grasses"
+      },
+      "pied" : {
+        "type" : "object",
+        "properties" : {
+          "nombreLignesCommande" : {
+            "type" : "array",
+            "description" : "mode de paiement ou les garanties bancaires, en texte libre",
+            "items" : {
+              "type" : "number",
+              "format" : "double"
+            }
+          }
+        }
+      },
+      "poids" : {
+        "type" : "object",
+        "properties" : {
+          "poidsTotalNet" : {
+            "type" : "number",
+            "description" : "Poids total net",
+            "format" : "double"
+          },
+          "appreciationPoidsTotalNet" : {
+            "type" : "string",
+            "description" : "Appréciation de la mesure Poids total net (cf. MEA-C502.6321)"
+          },
+          "poidsNetNet" : {
+            "type" : "number",
+            "description" : "Poinds net net (Poids des marchandises elles-mêmes sans aucun emballage.)",
+            "format" : "double"
+          },
+          "appreciationPoidsNetNet" : {
+            "type" : "string",
+            "description" : "Appréciation de la mesure Poids net net (cf. MEA-C502.6321)"
+          },
+          "unite" : {
+            "type" : "string",
+            "description" : "Unite de mesure (ie KGM)"
+          }
+        },
+        "description" : "Poids"
+      },
+      "poidsType" : {
+        "type" : "object",
+        "properties" : {
+          "poidsBrut" : {
+            "type" : "number",
+            "description" : "Poids brut",
+            "format" : "double"
+          },
+          "poidsNet" : {
+            "type" : "number",
+            "description" : "Poids net",
+            "format" : "double"
+          },
+          "unite" : {
+            "type" : "string",
+            "description" : "Unite de mesure (ie KGM)"
+          }
+        }
+      },
+      "qteManquante" : {
+        "required" : [
+          "valeur"
+        ],
+        "type" : "object",
+        "properties" : {
+          "valeur" : {
+            "type" : "number",
+            "description" : "Valeur de la différence qui peut être négative : Qté commandée - Qtée expédiée",
+            "format" : "double"
+          },
+          "qual" : {
+            "type" : "string",
+            "description" : "Qualifie la quantité qui fait l'objet du calcul de la différence"
+          },
+          "nature" : {
+            "type" : "string",
+            "description" : "Nature en code de l'écart (partiel,...)"
+          },
+          "motif" : {
+            "type" : "string"
+          },
+          "dateExpedition" : {
+            "type" : "object",
+            "description" : "Date d'expédition des manquants"
+          }
+        },
+        "description" : "Quantite manquante -  le nombre de manquants et le motif (seg. QVR)"
+      },
+      "temperatureStockage" : {
+        "type" : "object",
+        "properties" : {
+          "normale" : {
+            "type" : "number",
+            "description" : "Température normale de stockage",
+            "format" : "double"
+          },
+          "minimum" : {
+            "type" : "number",
+            "description" : "Température minimum de stockage",
+            "format" : "double"
+          },
+          "maximum" : {
+            "type" : "number",
+            "description" : "Température maximum de stockage",
+            "format" : "double"
+          }
+        },
+        "description" : "Température de stockage"
+      },
+      "uniteType" : {
+        "type" : "object",
+        "properties" : {
+          "colisage" : {
+            "$ref" : "#/components/schemas/colisage"
+          },
+          "ligne" : {
+            "type" : "array",
+            "description" : "Ligne article commandée",
+            "items" : {
+              "$ref" : "#/components/schemas/ligne"
+            }
+          },
+          "unite" : {
+            "type" : "array",
+            "description" : "Unités expédiées",
+            "items" : {
+              "$ref" : "#/components/schemas/uniteType"
+            }
+          }
+        }
+      },
+      "unitesLogistique" : {
+        "type" : "object"
+      },
+      "DESADV" : {
+        "required" : [
+          "acheteur",
+          "livrerA",
+          "expedierDe",
+          "expediteur",
+          "fournisseur",
+          "pointLivraisonFinal",
+          "transporteur",
+          "prestataireLogistique",
+          "ordonnePar",
+          "receveurMessage",
+          "clientFinal",
+          "entrepot",
+          "marquages",
+          "colisage",
+          "ligne",
+          "unite",
+          "pied",
+          "documentExpedition",
+          "schemaDocExp",
+          "interchange",
+          "ligneExpedition",
+          "referenceList",
+          "condLivraison",
+          "poids",
+          "identificationUE"
+        ],
+        "type" : "object",
+        "properties" : {
+          "acheteur" : {
+            "$ref" : "#/components/schemas/acteur"
+          },
+          "livrerA" : {
+            "$ref" : "#/components/schemas/acteur"
+          },
+          "expedierDe" : {
+            "$ref" : "#/components/schemas/acteur"
+          },
+          "expediteur" : {
+            "$ref" : "#/components/schemas/acteur"
+          },
+          "fournisseur" : {
+            "$ref" : "#/components/schemas/acteur"
+          },
+          "pointLivraisonFinal" : {
+            "$ref" : "#/components/schemas/acteur"
+          },
+          "transporteur" : {
+            "$ref" : "#/components/schemas/acteur"
+          },
+          "prestataireLogistique" : {
+            "$ref" : "#/components/schemas/acteur"
+          },
+          "ordonnePar" : {
+            "$ref" : "#/components/schemas/acteur"
+          },
+          "receveurMessage" : {
+            "$ref" : "#/components/schemas/acteur"
+          },
+          "clientFinal" : {
+            "$ref" : "#/components/schemas/acteur"
+          },
+          "entrepot" : {
+            "$ref" : "#/components/schemas/acteur"
+          },
+          "marquages" : {
+            "$ref" : "#/components/schemas/marquagesType"
+          },
+          "colisage" : {
+            "$ref" : "#/components/schemas/colisage"
+          },
+          "ligne" : {
+            "$ref" : "#/components/schemas/ligne"
+          },
+          "unite" : {
+            "$ref" : "#/components/schemas/uniteType"
+          },
+          "pied" : {
+            "$ref" : "#/components/schemas/pied"
+          },
+          "documentExpedition" : {
+            "$ref" : "#/components/schemas/documentExpedition"
+          },
+          "schemaDocExp" : {
+            "$ref" : "#/components/schemas/schemaDocExp"
+          },
+          "interchange" : {
+            "$ref" : "#/components/schemas/interchange"
+          },
+          "ligneExpedition" : {
+            "$ref" : "#/components/schemas/ligneExpeditionType"
+          },
+          "referenceList" : {
+            "$ref" : "#/components/schemas/referenceListType"
+          },
+          "condLivraison" : {
+            "$ref" : "#/components/schemas/condLivraison"
+          },
+          "poids" : {
+            "$ref" : "#/components/schemas/poidsType"
+          },
+          "identificationUE" : {
+            "$ref" : "#/components/schemas/identificationUE"
+          }
+        }
+      },
+      "differenceQuantite" : {
+        "required" : [
+          "valeurDifference"
+        ],
+        "type" : "object",
+        "properties" : {
+          "valeurDifference" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "qualQte" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "natureEcart" : {
+            "type" : "string"
+          },
+          "motifModification" : {
+            "type" : "string"
+          }
+        }
+      },
+      "schemaDocExp" : {
+        "required" : [
+          "documentExpedition"
+        ],
+        "type" : "object",
+        "properties" : {
+          "documentExpedition" : {
+            "$ref" : "#/components/schemas/documentExpedition"
+          }
+        }
+      },
+      "acteurLogistique" : {
+        "type" : "object",
+        "properties" : {
+          "qualifiant" : {
+            "type" : "string",
+            "description" : "Qualifiant"
+          },
+          "nom" : {
+            "type" : "string"
+          },
+          "adresse" : {
+            "$ref" : "#/components/schemas/adresseType"
+          },
+          "RCS" : {
+            "type" : "string",
+            "description" : "code des registres du commerce (RCS)"
+          },
+          "numTVA" : {
+            "type" : "string"
+          },
+          "SIREN" : {
+            "type" : "string"
+          },
+          "SIRET" : {
+            "type" : "string"
+          },
+          "GLN" : {
+            "type" : "string"
+          },
+          "contactActeur" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/contactActeurType"
+            }
+          },
+          "IdentificationFinanciere" : {
+            "$ref" : "#/components/schemas/IdentificationFinanciereType"
+          },
+          "intracommunautaire" : {
+            "type" : "boolean"
+          },
+          "code" : {
+            "type" : "string",
+            "description" : "Code interne de l'acteur"
+          },
+          "codeLieuMarchandise" : {
+            "type" : "string",
+            "description" : "Lieu/emplacement chez le prestataire logistique où les marchandises à livrer sont localisées (ie entrepôt).\nUtilisé pour préciser le lieu où les marchandises sont visibles."
+          },
+          "nomLieuMarchandise" : {
+            "type" : "string",
+            "description" : "Nom du lieu/emplacement de la marchandise"
+          },
+          "codeLieuLivraison" : {
+            "type" : "string",
+            "description" : "Lieu de livraison final précis chez un client par exemple un quai de déchargement"
+          },
+          "nomLieuLivraison" : {
+            "type" : "string",
+            "description" : "Nom du lieu/emplacement de la livraison"
+          },
+          "codeLieuDestinationDeplacement" : {
+            "type" : "string",
+            "description" : "code du lieu/emplacement de destination du déplacement de la marchandise"
+          },
+          "nomLieuDestinationDeplacement" : {
+            "type" : "string",
+            "description" : "nom du lieu/emplacement de destination du déplacement de la marchandise"
+          }
+        }
+      },
+      "commentaireType" : {
+        "type" : "object",
+        "properties" : {
+          "qualifiant" : {
+            "type" : "string"
+          },
+          "fonction" : {
+            "type" : "string"
+          },
+          "texte" : {
+            "type" : "string"
+          }
+        }
+      },
+      "designation" : {
+        "type" : "object",
+        "properties" : {
+          "typeDescCode" : {
+            "type" : "string",
+            "description" : "Type de la description (en code, cf. IMD.7077)"
+          },
+          "libelle" : {
+            "type" : "string",
+            "description" : "Libellé"
+          }
+        },
+        "description" : "Désignation article"
+      },
+      "documentOrdrePrestaType" : {
+        "required" : [
+          "entete"
+        ],
+        "type" : "object",
+        "properties" : {
+          "version" : {
+            "type" : "string",
+            "description" : "Version du pivot"
+          },
+          "entete" : {
+            "$ref" : "#/components/schemas/entete"
+          },
+          "ligneOrdrePresta" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ligneOrdrePrestaType"
+            }
+          }
+        }
+      },
+      "ligneOrdrePrestaType" : {
+        "required" : [
+          "num"
+        ],
+        "type" : "object",
+        "properties" : {
+          "num" : {
+            "type" : "integer",
+            "description" : "numéro de ligne",
+            "format" : "int32"
+          },
+          "gtin" : {
+            "type" : "string",
+            "description" : "GTIN (numéro ean internationnal de l'article) sur 14 chiffre : mettre des zéros à gauche pour compléter."
+          },
+          "identificationComplementaireProduit" : {
+            "$ref" : "#/components/schemas/identificationComplementaireProduit"
+          },
+          "typeUnite" : {
+            "type" : "string",
+            "description" : "Code d'identification du type d'article (unité logistique/unité conssomateur)"
+          },
+          "designation" : {
+            "$ref" : "#/components/schemas/designation"
+          },
+          "qteCommandee" : {
+            "type" : "number",
+            "description" : "Quantité commandée",
+            "format" : "double"
+          },
+          "uteQteCommandee" : {
+            "type" : "string",
+            "description" : "Unité de mesure de la quantité commandée"
+          },
+          "qteDiscrete" : {
+            "type" : "number",
+            "description" : "Quantité discrète",
+            "format" : "double"
+          },
+          "uteQteDiscrete" : {
+            "type" : "string",
+            "description" : "Unité de mesure de la quantité discrète"
+          },
+          "qteALivrer" : {
+            "type" : "number",
+            "description" : "Quantité à livrer",
+            "format" : "double"
+          },
+          "uteQteALivrer" : {
+            "type" : "string",
+            "description" : "Unité de mesure de la quantité à livrer"
+          },
+          "qteADeplacer" : {
+            "type" : "number",
+            "description" : "Quantité à déplacer",
+            "format" : "double"
+          },
+          "uteQteADeplacer" : {
+            "type" : "string",
+            "description" : "Unité de mesure de la quantité à déplacer"
+          },
+          "qteABloquer" : {
+            "type" : "number",
+            "description" : "Quantité à bloquer",
+            "format" : "double"
+          },
+          "uteQteABloquer" : {
+            "type" : "string",
+            "description" : "Unité de mesure de la quantité à bloquer"
+          },
+          "qteADebloquer" : {
+            "type" : "number",
+            "description" : "Quantité à bloquer",
+            "format" : "double"
+          },
+          "uteQteADebloquer" : {
+            "type" : "string",
+            "description" : "Unité de mesure de la quantité à débloquer"
+          },
+          "qteAEmballer" : {
+            "type" : "number",
+            "description" : "Quantité à emballer",
+            "format" : "double"
+          },
+          "uteQteAEmballer" : {
+            "type" : "string",
+            "description" : "Unité de mesure de la quantité à emballer"
+          },
+          "qteADesemballer" : {
+            "type" : "number",
+            "description" : "Quantité à désemballer",
+            "format" : "double"
+          },
+          "uteQteADesemballer" : {
+            "type" : "string",
+            "description" : "Unité de mesure de la quantité à désemballer"
+          },
+          "qteADetruire" : {
+            "type" : "number",
+            "description" : "Quantité à détruire",
+            "format" : "double"
+          },
+          "uteQteADetruire" : {
+            "type" : "string",
+            "description" : "Unité de mesure de la quantité à détruire"
+          },
+          "qteParConditionnement" : {
+            "type" : "integer",
+            "description" : "PCB",
+            "format" : "int32"
+          },
+          "uteQteParConditionnement" : {
+            "type" : "string",
+            "description" : "Unité de mesure PCB"
+          },
+          "qteParSousConditionnement" : {
+            "type" : "integer",
+            "description" : "SPCB",
+            "format" : "int32"
+          },
+          "uteQteParSousConditionnement" : {
+            "type" : "string",
+            "description" : "Unité de mesure SPCB"
+          },
+          "dateExpiration" : {
+            "type" : "string",
+            "description" : "Date d'éxpiration",
+            "format" : "date-time"
+          },
+          "dateProduction" : {
+            "type" : "string",
+            "description" : "Date de production",
+            "format" : "date-time"
+          },
+          "dateDLUO" : {
+            "type" : "string",
+            "description" : "DLUO",
+            "format" : "date-time"
+          },
+          "datePremiereCongelation" : {
+            "type" : "string",
+            "description" : "Date première congélation",
+            "format" : "date-time"
+          },
+          "pointLivraisonFinal" : {
+            "$ref" : "#/components/schemas/acteurLogistique"
+          },
+          "referenceList" : {
+            "$ref" : "#/components/schemas/referenceListType"
+          },
+          "reference" : {
+            "type" : "array",
+            "description" : "Référence ligne",
+            "items" : {
+              "$ref" : "#/components/schemas/reference"
+            }
+          },
+          "commentaire" : {
+            "type" : "array",
+            "description" : "commentaires",
+            "items" : {
+              "$ref" : "#/components/schemas/commentaireType"
+            }
+          },
+          "codeLieuMarchandise" : {
+            "type" : "string",
+            "description" : "Lieu/emplacement chez le prestataire logistique où les marchandises à livrer sont localisées (ie entrepôt).\nUtilisé pour préciser le lieu où les marchandises sont visibles."
+          },
+          "nomLieuMarchandise" : {
+            "type" : "string",
+            "description" : "Nom du lieu/emplacement de la marchandise"
+          },
+          "codeLieuLivraison" : {
+            "type" : "string",
+            "description" : "Lieu de livraison final précis chez un client par exemple un quai de déchargement"
+          },
+          "nomLieuLivraison" : {
+            "type" : "string",
+            "description" : "Nom du lieu/emplacement de la livraison"
+          },
+          "codeLieuDestinationDeplacement" : {
+            "type" : "string",
+            "description" : "code du lieu/emplacement de destination du déplacement de la marchandise"
+          },
+          "nomLieuDestinationDeplacement" : {
+            "type" : "string",
+            "description" : "nom du lieu/emplacement de destination du déplacement de la marchandise"
+          },
+          "emballage" : {
+            "type" : "array",
+            "description" : "description du nombre et du type de colis ou unités physiques",
+            "items" : {
+              "$ref" : "#/components/schemas/emballage"
+            }
+          }
+        }
+      },
+      "HANMOV" : {
+        "required" : [
+          "acheteur",
+          "livrerA",
+          "fournisseur",
+          "transporteur",
+          "donneurOrdre",
+          "prestaLogistique",
+          "pointLivraisonFinal",
+          "expedierDe",
+          "expediteur",
+          "gestionnaireEntrepot",
+          "factureA",
+          "destinataireMessage",
+          "clientFinal",
+          "intervenant",
+          "emballage",
+          "ligneOrdrePresta",
+          "schemaDocOrdPresta",
+          "ordrePrestaLogistique",
+          "interchange",
+          "siege",
+          "declarantTVA",
+          "agent",
+          "remiseCharge",
+          "referenceList",
+          "taxeParafiscale",
+          "mesure",
+          "totalTaxeParafiscale",
+          "remiseOuCharge",
+          "escompte",
+          "penalite",
+          "echeances",
+          "condLivraison",
+          "pied"
+        ],
+        "type" : "object",
+        "properties" : {
+          "acheteur" : {
+            "$ref" : "#/components/schemas/acteur"
+          },
+          "livrerA" : {
+            "$ref" : "#/components/schemas/acteurLogistique"
+          },
+          "fournisseur" : {
+            "$ref" : "#/components/schemas/acteur"
+          },
+          "transporteur" : {
+            "$ref" : "#/components/schemas/acteur"
+          },
+          "donneurOrdre" : {
+            "$ref" : "#/components/schemas/acteur"
+          },
+          "prestaLogistique" : {
+            "$ref" : "#/components/schemas/acteurLogistique"
+          },
+          "pointLivraisonFinal" : {
+            "$ref" : "#/components/schemas/acteurLogistique"
+          },
+          "expedierDe" : {
+            "$ref" : "#/components/schemas/acteurLogistique"
+          },
+          "expediteur" : {
+            "$ref" : "#/components/schemas/acteurLogistique"
+          },
+          "gestionnaireEntrepot" : {
+            "$ref" : "#/components/schemas/acteurLogistique"
+          },
+          "factureA" : {
+            "$ref" : "#/components/schemas/acteur"
+          },
+          "destinataireMessage" : {
+            "$ref" : "#/components/schemas/acteur"
+          },
+          "clientFinal" : {
+            "$ref" : "#/components/schemas/acteur"
+          },
+          "intervenant" : {
+            "$ref" : "#/components/schemas/acteur"
+          },
+          "emballage" : {
+            "$ref" : "#/components/schemas/emballage"
+          },
+          "ligneOrdrePresta" : {
+            "$ref" : "#/components/schemas/ligneOrdrePrestaType"
+          },
+          "schemaDocOrdPresta" : {
+            "$ref" : "#/components/schemas/schemaDocOrdPresta"
+          },
+          "ordrePrestaLogistique" : {
+            "$ref" : "#/components/schemas/documentOrdrePrestaType"
+          },
+          "interchange" : {
+            "$ref" : "#/components/schemas/interchange"
+          },
+          "siege" : {
+            "$ref" : "#/components/schemas/acteur"
+          },
+          "declarantTVA" : {
+            "$ref" : "#/components/schemas/acteur"
+          },
+          "agent" : {
+            "$ref" : "#/components/schemas/acteur"
+          },
+          "remiseCharge" : {
+            "$ref" : "#/components/schemas/remiseOuChargeType"
+          },
+          "referenceList" : {
+            "$ref" : "#/components/schemas/referenceList"
+          },
+          "taxeParafiscale" : {
+            "$ref" : "#/components/schemas/taxeParafiscale1"
+          },
+          "mesure" : {
+            "$ref" : "#/components/schemas/mesure"
+          },
+          "totalTaxeParafiscale" : {
+            "$ref" : "#/components/schemas/totalTaxeParafiscaleType"
+          },
+          "remiseOuCharge" : {
+            "$ref" : "#/components/schemas/remiseOuChargeType"
+          },
+          "escompte" : {
+            "$ref" : "#/components/schemas/escompte"
+          },
+          "penalite" : {
+            "$ref" : "#/components/schemas/penalite"
+          },
+          "echeances" : {
+            "$ref" : "#/components/schemas/echeances"
+          },
+          "condLivraison" : {
+            "$ref" : "#/components/schemas/condLivraison"
+          },
+          "pied" : {
+            "$ref" : "#/components/schemas/pied"
+          }
+        }
+      },
+      "schemaDocOrdPresta" : {
+        "required" : [
+          "documentOrdrePrestaType"
+        ],
+        "type" : "object",
+        "properties" : {
+          "documentOrdrePrestaType" : {
+            "$ref" : "#/components/schemas/documentOrdrePrestaType"
+          }
+        }
+      },
+      "documentEtatStockType" : {
+        "required" : [
+          "entete"
+        ],
+        "type" : "object",
+        "properties" : {
+          "version" : {
+            "type" : "string",
+            "description" : "Version du pivot"
+          },
+          "entete" : {
+            "$ref" : "#/components/schemas/entete"
+          },
+          "ligneEtatStock" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ligneEtatStockType"
+            }
+          }
+        }
+      },
+      "ligneEtatStockType" : {
+        "required" : [
+          "num"
+        ],
+        "type" : "object",
+        "properties" : {
+          "num" : {
+            "type" : "integer",
+            "description" : "numéro de ligne",
+            "format" : "int32"
+          },
+          "gtin" : {
+            "type" : "string",
+            "description" : "GTIN (numéro ean internationnal de l'article) sur 14 chiffre : mettre des zéros à gauche pour compléter."
+          },
+          "identificationComplementaireProduit" : {
+            "$ref" : "#/components/schemas/identificationComplementaireProduit"
+          },
+          "typeUnite" : {
+            "type" : "string",
+            "description" : "Code d'identification du type d'article (unité logistique/unité conssomateur)"
+          },
+          "designation" : {
+            "$ref" : "#/components/schemas/designation"
+          },
+          "qteDisponible" : {
+            "type" : "number",
+            "description" : "Quantité disponible",
+            "format" : "double"
+          },
+          "uteQteDisponible" : {
+            "type" : "string",
+            "description" : "Unité de mesure de la quantité disponible"
+          },
+          "dateExpiration" : {
+            "type" : "string",
+            "description" : "Date d'éxpiration",
+            "format" : "date-time"
+          },
+          "dateProduction" : {
+            "type" : "string",
+            "description" : "Date de production",
+            "format" : "date-time"
+          },
+          "dateDLUO" : {
+            "type" : "string",
+            "description" : "DLUO",
+            "format" : "date-time"
+          },
+          "dateLimiteVente" : {
+            "type" : "string",
+            "description" : "Date limite de vente",
+            "format" : "date-time"
+          },
+          "numeroLot" : {
+            "type" : "string",
+            "description" : "Numéro de lot"
+          },
+          "SSCC" : {
+            "type" : "string",
+            "description" : "Numéro Séquentiel de Colis"
+          },
+          "codeLieuMarchandise" : {
+            "type" : "string",
+            "description" : "Lieu/emplacement chez le prestataire logistique où les marchandises à livrer sont localisées (ie entrepôt).\nUtilisé pour préciser le lieu où les marchandises sont visibles."
+          },
+          "nomLieuMarchandise" : {
+            "type" : "string",
+            "description" : "Nom du lieu/emplacement de la marchandise"
+          }
+        }
+      },
+      "INVRPT" : {
+        "required" : [
+          "acheteur",
+          "proprietaireMarchandise",
+          "prestaLogistique",
+          "entrepot",
+          "destinataireMessage",
+          "intervenant",
+          "ligneEtatStock",
+          "schemaDocEtatStock",
+          "etatDeStock",
+          "interchange"
+        ],
+        "type" : "object",
+        "properties" : {
+          "acheteur" : {
+            "$ref" : "#/components/schemas/acteur"
+          },
+          "proprietaireMarchandise" : {
+            "$ref" : "#/components/schemas/acteur"
+          },
+          "prestaLogistique" : {
+            "$ref" : "#/components/schemas/acteur"
+          },
+          "entrepot" : {
+            "$ref" : "#/components/schemas/acteur"
+          },
+          "destinataireMessage" : {
+            "$ref" : "#/components/schemas/acteur"
+          },
+          "intervenant" : {
+            "$ref" : "#/components/schemas/acteur"
+          },
+          "ligneEtatStock" : {
+            "$ref" : "#/components/schemas/ligneEtatStockType"
+          },
+          "schemaDocEtatStock" : {
+            "$ref" : "#/components/schemas/schemaDocEtatStock"
+          },
+          "etatDeStock" : {
+            "$ref" : "#/components/schemas/documentEtatStockType"
+          },
+          "interchange" : {
+            "$ref" : "#/components/schemas/interchange"
+          }
+        }
+      },
+      "schemaDocEtatStock" : {
+        "required" : [
+          "documentEtatStockType"
+        ],
+        "type" : "object",
+        "properties" : {
+          "documentEtatStockType" : {
+            "$ref" : "#/components/schemas/documentEtatStockType"
+          }
+        }
+      },
+      "acomptes" : {
+        "type" : "object",
+        "properties" : {
+          "Acompte" : {
+            "type" : "number",
+            "description" : "montant de l' acompte",
+            "format" : "double"
+          },
+          "refAcompte" : {
+            "type" : "string",
+            "description" : "numéro de paiement de l' acompte"
+          },
+          "dateAcompte" : {
+            "type" : "string",
+            "description" : "date de paiement de l' acompte",
+            "format" : "date-time"
+          },
+          "TVA" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "codeTVA" : {
+            "type" : "string"
+          },
+          "taxeRetenueSource" : {
+            "type" : "string"
+          },
+          "libelle" : {
+            "type" : "string"
+          }
+        }
+      },
+      "acteurLivrerA" : {
+        "type" : "object",
+        "properties" : {
+          "qualifiant" : {
+            "type" : "string"
+          },
+          "nom" : {
+            "type" : "string"
+          },
+          "adresse" : {
+            "$ref" : "#/components/schemas/adresseType"
+          },
+          "RCS" : {
+            "type" : "string",
+            "description" : "code des registres du commerce (RCS)"
+          },
+          "numTVA" : {
+            "type" : "string"
+          },
+          "SIREN" : {
+            "type" : "string"
+          },
+          "SIRET" : {
+            "type" : "string"
+          },
+          "GLN" : {
+            "type" : "string"
+          },
+          "contactActeur" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/contactActeurType"
+            }
+          },
+          "IdentificationFinanciere" : {
+            "$ref" : "#/components/schemas/IdentificationFinanciereType"
+          },
+          "intracommunautaire" : {
+            "type" : "boolean",
+            "description" : "Utilisé pour l'acteur facturé. \nLes obligations légales de facturation sont appliquées si le \"facturé à\" est intracommunautaire."
+          },
+          "code" : {
+            "type" : "string",
+            "description" : "Code interne de l'acteur"
+          },
+          "reference" : {
+            "type" : "array",
+            "description" : "Autres références",
+            "items" : {
+              "$ref" : "#/components/schemas/reference"
+            }
+          },
+          "personnePhysique" : {
+            "type" : "boolean",
+            "description" : "TRUE = Personne physique\n* null ou FALSE => par défaut Personne morale"
+          },
+          "codeNAF" : {
+            "type" : "string",
+            "description" : "Code NAF"
+          },
+          "paiementDirect" : {
+            "type" : "boolean",
+            "description" : "EDIPUB : Annonceur paye en direct"
+          },
+          "mandataire" : {
+            "type" : "boolean",
+            "description" : "EDIPUB : Agence mandataire/commissionaire"
+          },
+          "type" : {
+            "type" : "string",
+            "description" : "Type de lieu de livraison (MAGASIN, POINT DE VENTE, ENTREPOT...)"
+          },
+          "commentaire" : {
+            "type" : "string",
+            "description" : "Commentaire d'adresse de livraison"
+          }
+        }
+      },
+      "attachements" : {
+        "type" : "object",
+        "properties" : {
+          "contenu" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "type" : {
+            "type" : "string",
+            "description" : "PATH, ZIP, PDF,..."
+          }
+        },
+        "description" : "Pièces jointes ; A SUPPRIMER APRES LA MEP DE CCAS LOT 3"
+      },
+      "caisseDeCotisation" : {
+        "type" : "object",
+        "properties" : {
+          "typeCaisse" : {
+            "type" : "string"
+          },
+          "tauxCotisation" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "montantCotisation" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "baseCotisation" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "TVA" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "taxeRetenueSource" : {
+            "type" : "boolean"
+          },
+          "condExoneration" : {
+            "type" : "string",
+            "description" : "Obligatoire quand TVA = 0%"
+          }
+        },
+        "description" : "Concerne le vendeur"
+      },
+      "code" : {
+        "type" : "string",
+        "enum" : [
+          "OK",
+          "ERREUR"
+        ]
+      },
+      "compteTaxes" : {
+        "type" : "string",
+        "enum" : [
+          "DEB",
+          "LTI",
+          "NDT",
+          "ENC",
+          "E"
+        ]
+      },
+      "condEscompteCodee" : {
+        "type" : "object",
+        "properties" : {
+          "condNbJours" : {
+            "type" : "integer",
+            "description" : "Nombre de périodes (Il s'agit de Nombre de jours si 'condTypePeriode' n'est pas renseigné)",
+            "format" : "int32"
+          },
+          "condLienTemp" : {
+            "$ref" : "#/components/schemas/condLienTemp"
+          },
+          "condDateRef" : {
+            "$ref" : "#/components/schemas/condDateRef"
+          },
+          "condTypePeriode" : {
+            "type" : "string",
+            "description" : "Type de la période (Jour, mois, semaine,...)"
+          }
+        },
+        "description" : "Condition d'escompte codé en nombre de jours"
+      },
+      "dematDocument" : {
+        "required" : [
+          "entete",
+          "acteurs",
+          "pied"
+        ],
+        "type" : "object",
+        "properties" : {
+          "entete" : {
+            "$ref" : "#/components/schemas/entete"
+          },
+          "acteurs" : {
+            "$ref" : "#/components/schemas/acteurs"
+          },
+          "index" : {
+            "type" : "integer",
+            "description" : "Généré AUTOmatiquement",
+            "format" : "int32"
+          },
+          "pdf" : {
+            "type" : "string",
+            "description" : "Nom du fichier pdf stocké. \ngenere AUTOmatiquement :\n- soit en utilisant fromPdf(source,&arget = Null,&error = Null) pour stocker le pdf signé \n- soit en utilisant toPdf pour generer un pdf a partir des donnees de l objet dematDocument"
+          },
+          "referenceList" : {
+            "$ref" : "#/components/schemas/referenceList"
+          },
+          "reference" : {
+            "type" : "array",
+            "description" : "Autres références",
+            "items" : {
+              "$ref" : "#/components/schemas/reference"
+            }
+          },
+          "ligneFacture" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ligneFactureType"
+            }
+          },
+          "ligneNoteCredit" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ligneNoteCreditType"
+            }
+          },
+          "pied" : {
+            "$ref" : "#/components/schemas/pied"
+          },
+          "comment" : {
+            "type" : "array",
+            "description" : "commentaires (FTX+AAI)",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "commentQualifie" : {
+            "type" : "array",
+            "description" : "Commentaire(s) d'entête",
+            "items" : {
+              "$ref" : "#/components/schemas/commentType"
+            }
+          },
+          "statut" : {
+            "$ref" : "#/components/schemas/statut"
+          },
+          "piecesJointes" : {
+            "$ref" : "#/components/schemas/piecesJointes"
+          },
+          "attachements" : {
+            "$ref" : "#/components/schemas/attachements"
+          }
+        },
+        "description" : "toControle = true; // Controle les données légales\ndematDocument->serialize(value,toControle); //Fonction qui génère un tableau value, contenant la description de la facture\nL'interchange est stocké dans la variable gobale : global dematInterchange;\ndematDocument->value = value;\ndematDocument->toPdf(); //Lorsqu'on génère un pdf à partir des données de la facture (Données provenant du standard EDIFACT)\ndematDocument->fromPdf(source,&target = Null,error = Null); //Lorsque les données de la facture provienne directement d'un pdf signé"
+      },
+      "dematInterchange" : {
+        "required" : [
+          "enveloppe",
+          "index",
+          "interchangeDateTime",
+          "environnement",
+          "sens",
+          "destinataire",
+          "emetteur",
+          "interchangeId"
+        ],
+        "type" : "object",
+        "properties" : {
+          "enveloppe" : {
+            "$ref" : "#/components/schemas/enveloppe"
+          },
+          "index" : {
+            "type" : "integer",
+            "description" : "_p_index",
+            "format" : "int32"
+          },
+          "interchangeDateTime" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "environnement" : {
+            "type" : "string",
+            "description" : "Environnement utilisateur (Client Artéva)"
+          },
+          "sens" : {
+            "$ref" : "#/components/schemas/sens"
+          },
+          "test" : {
+            "type" : "boolean",
+            "description" : "Flux en test => true\nFlux en production => false"
+          },
+          "destinataire" : {
+            "type" : "string",
+            "description" : "_p_msg_Recipient"
+          },
+          "emetteur" : {
+            "type" : "string",
+            "description" : "_p_msg_Sender"
+          },
+          "interchangeId" : {
+            "type" : "string"
+          }
+        },
+        "description" : "Interchange facture"
+      },
+      "identification" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string",
+            "description" : "Identification du moyen de transport\nTDT-C222.8213"
+          },
+          "qualifiant" : {
+            "type" : "string",
+            "description" : "Qualifiant de la liste de codes\nTDT-C222.1131"
+          },
+          "org" : {
+            "type" : "string",
+            "description" : "Organisme responsable de la liste de codes (en code)\nTDT-C222.3055"
+          },
+          "immatriculation" : {
+            "type" : "string",
+            "description" : "Numéro d'immatriculation/numéro de vol \nTDT-C222.8212"
+          },
+          "pays" : {
+            "type" : "string",
+            "description" : "Nationalité du moyen de transport (en code)\nTDT-C222.8453"
+          }
+        }
+      },
+      "ligneFactureType" : {
+        "required" : [
+          "num",
+          "acteurs"
+        ],
+        "type" : "object",
+        "properties" : {
+          "num" : {
+            "type" : "integer",
+            "description" : "numéro de ligne",
+            "format" : "int32"
+          },
+          "sousLigne" : {
+            "$ref" : "#/components/schemas/sousLigne"
+          },
+          "numSousLigne" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "qualifiant" : {
+            "type" : "string",
+            "description" : "[SC]: réduction\n[PR]: bonus\n[AB]: remise\n[AC]: frais accessoires/charge\n\nUniquement si ce n'est pas une ligne article classique mais remise/charge exprimée comme ligne article."
+          },
+          "gtin" : {
+            "type" : "string",
+            "description" : "GTIN (numéro ean internationnal de l'article) sur 14 chiffre : mettre des zéros à gauche pour compléter."
+          },
+          "SSC" : {
+            "type" : "string",
+            "description" : "Si le gtin n'est pas renseigné et que c'est le SSC à la place"
+          },
+          "qualifiantCodeArticle" : {
+            "type" : "string",
+            "description" : "TARIC, CPV, etc. (liste non exaustive…)"
+          },
+          "refArticleClient" : {
+            "type" : "string",
+            "description" : "référence client de l'article"
+          },
+          "refArticleFournisseur" : {
+            "type" : "string",
+            "description" : "référence fournisseur de l'article"
+          },
+          "variantePromo" : {
+            "type" : "string",
+            "description" : "variante promotionnelle de l'article"
+          },
+          "numeroSerie" : {
+            "type" : "string"
+          },
+          "designationArticle" : {
+            "type" : "string",
+            "description" : "désignation du produit"
+          },
+          "designationArticle2" : {
+            "type" : "string",
+            "description" : "désignation du produit (supérieure à 70 caractères)"
+          },
+          "codeTypeArticle" : {
+            "type" : "string",
+            "description" : "type d'article (en code)"
+          },
+          "qteFacturee" : {
+            "type" : "number",
+            "description" : "quantité facturée",
+            "format" : "double"
+          },
+          "uteQteFacturee" : {
+            "type" : "string"
+          },
+          "uteQteFactureeLibelle" : {
+            "type" : "string"
+          },
+          "qteGratuite" : {
+            "type" : "number",
+            "description" : "quantité gratuite",
+            "format" : "double"
+          },
+          "uteQteGratuite" : {
+            "type" : "string"
+          },
+          "qteConditionnee" : {
+            "type" : "number",
+            "description" : "quantité conditionnée",
+            "format" : "double"
+          },
+          "uteQteConditionnee" : {
+            "type" : "string"
+          },
+          "qteRetournee" : {
+            "type" : "number",
+            "description" : "quantité retournée",
+            "format" : "double"
+          },
+          "uteQteRetournee" : {
+            "type" : "string",
+            "description" : "Unité de mesure de la quantité retournée"
+          },
+          "PrixPublic" : {
+            "$ref" : "#/components/schemas/prix"
+          },
+          "PrixRistournable" : {
+            "$ref" : "#/components/schemas/prix"
+          },
+          "PUHTBrut" : {
+            "$ref" : "#/components/schemas/prix"
+          },
+          "PUHTNet" : {
+            "$ref" : "#/components/schemas/prix"
+          },
+          "montantHTTX" : {
+            "type" : "number",
+            "description" : "montant de la ligne hors toute taxe (Hors taxes parafiscales et hors TVA)",
+            "format" : "double"
+          },
+          "montantNet" : {
+            "type" : "number",
+            "description" : "montant net hors taxe de la ligne (Réductions et charges incluses)",
+            "format" : "double"
+          },
+          "codeTVA" : {
+            "type" : "string",
+            "description" : "Catégorie de TVA"
+          },
+          "TVA" : {
+            "type" : "number",
+            "description" : "taux de la TVA appliquée sur le produit. Indiquer Zéro si la facturation est exonérée de TVA. \n15.03.2019 Mis optionnel, sera obligatoire dans les controles BMS",
+            "format" : "double"
+          },
+          "baseTVA" : {
+            "type" : "number",
+            "description" : "NEW",
+            "format" : "double"
+          },
+          "montantTVA" : {
+            "type" : "number",
+            "description" : "NEW",
+            "format" : "double"
+          },
+          "dateLivraison" : {
+            "type" : "array",
+            "description" : "date réelle de livraison",
+            "items" : {
+              "type" : "object"
+            }
+          },
+          "dateEnlevement" : {
+            "type" : "array",
+            "description" : "date d'enlèvement de la cargaison",
+            "items" : {
+              "type" : "object"
+            }
+          },
+          "dateReception" : {
+            "type" : "array",
+            "items" : {
+              "type" : "object"
+            }
+          },
+          "dateExpedition" : {
+            "type" : "array",
+            "description" : "date d'expédition",
+            "items" : {
+              "type" : "object"
+            }
+          },
+          "periodeFacturation" : {
+            "type" : "array",
+            "description" : "Période de facturation",
+            "items" : {
+              "type" : "object"
+            }
+          },
+          "volume" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "uteVolume" : {
+            "type" : "string"
+          },
+          "poids" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "utePoids" : {
+            "type" : "string"
+          },
+          "ligneCommande" : {
+            "type" : "string",
+            "description" : "Numéro de ligne de la commande"
+          },
+          "qteCommandee" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "uteQteCommandee" : {
+            "type" : "string"
+          },
+          "gtinRemplace" : {
+            "type" : "string",
+            "description" : "GTIN du produit remplacé (numéro ean internationnal de l'article) sur 14 chiffre."
+          },
+          "codeFournisseurRemplace" : {
+            "type" : "string",
+            "description" : "référence fournisseur de l'article remplacé"
+          },
+          "emballage" : {
+            "type" : "array",
+            "description" : "description du nombre et du type de colis ou unités physiques",
+            "items" : {
+              "$ref" : "#/components/schemas/emballage"
+            }
+          },
+          "mesure" : {
+            "type" : "array",
+            "description" : "mesures du produit",
+            "items" : {
+              "$ref" : "#/components/schemas/mesure"
+            }
+          },
+          "remiseCharge" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/remiseOuChargeType"
+            }
+          },
+          "taxeParafiscale" : {
+            "type" : "array",
+            "description" : "taxe parafiscale du produit",
+            "items" : {
+              "$ref" : "#/components/schemas/taxeParafiscale"
+            }
+          },
+          "commentaireLigne" : {
+            "type" : "array",
+            "description" : "Commentaire(s) de ligne",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "referenceList" : {
+            "$ref" : "#/components/schemas/referenceList"
+          },
+          "qteLivree" : {
+            "type" : "number",
+            "description" : "Quantité livrée",
+            "format" : "double"
+          },
+          "uteQteLivree" : {
+            "type" : "string",
+            "description" : "Unité de mesure de la quantité livrée"
+          },
+          "commentaireLigneQualifie" : {
+            "type" : "array",
+            "description" : "Commentaire(s) de ligne",
+            "items" : {
+              "$ref" : "#/components/schemas/commentType"
+            }
+          },
+          "referenceLignes" : {
+            "type" : "array",
+            "description" : "Réféfrence(s) de ligne",
+            "items" : {
+              "$ref" : "#/components/schemas/reference"
+            }
+          },
+          "taxe" : {
+            "type" : "array",
+            "description" : "Taxe(s) autres que la TVA",
+            "items" : {
+              "$ref" : "#/components/schemas/taxe"
+            }
+          },
+          "acteurs" : {
+            "$ref" : "#/components/schemas/acteurs"
+          },
+          "transport" : {
+            "type" : "array",
+            "description" : "Informations détaillées sur le transport\nTDT",
+            "items" : {
+              "$ref" : "#/components/schemas/transport"
+            }
+          },
+          "taxeRetenueSource" : {
+            "type" : "boolean",
+            "description" : "Indique que la valeur de base de la transaction est soumise à une retenue à la source, qu'il s'agisse d'un impôt payé d'avance ou d'un impôt définitif"
+          }
+        }
+      },
+      "ligneNoteCreditType" : {
+        "required" : [
+          "num"
+        ],
+        "type" : "object",
+        "properties" : {
+          "num" : {
+            "type" : "integer",
+            "description" : "numéro de ligne",
+            "format" : "int32"
+          },
+          "sousLigne" : {
+            "$ref" : "#/components/schemas/sousLigne"
+          },
+          "numSousLigne" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "qualifiant" : {
+            "type" : "string",
+            "description" : "[SC]: réduction\n[PR]: bonus\n[AB]: remise\n[AC]: frais accessoires/charge\n\nUniquement si ce n'est pas une ligne article classique mais remise/charge exprimée comme ligne article."
+          },
+          "gtin" : {
+            "type" : "string",
+            "description" : "GTIN (numéro ean internationnal de l'article) sur 14 chiffre : mettre des zéros à gauche pour compléter."
+          },
+          "qualifiantCodeArticle" : {
+            "type" : "string",
+            "description" : "TARIC, CPV, etc. (liste non exaustive…)"
+          },
+          "refArticleClient" : {
+            "type" : "string",
+            "description" : "référence client de l'article"
+          },
+          "refArticleFournisseur" : {
+            "type" : "string",
+            "description" : "référence fournisseur de l'article"
+          },
+          "designationArticle" : {
+            "type" : "string",
+            "description" : "désignation du produit"
+          },
+          "codeTypeArticle" : {
+            "type" : "string",
+            "description" : "type d'article (en code)"
+          },
+          "qteFacturee" : {
+            "type" : "number",
+            "description" : "quantité facturée",
+            "format" : "double"
+          },
+          "uteQteFacturee" : {
+            "type" : "string"
+          },
+          "uteQteFactureeLibelle" : {
+            "type" : "string"
+          },
+          "qteGratuite" : {
+            "type" : "number",
+            "description" : "quantité gratuite",
+            "format" : "double"
+          },
+          "uteQteGratuite" : {
+            "type" : "string"
+          },
+          "PUHTBrut" : {
+            "$ref" : "#/components/schemas/prix"
+          },
+          "PUHTNet" : {
+            "$ref" : "#/components/schemas/prix"
+          },
+          "montantHTTX" : {
+            "type" : "number",
+            "description" : "montant de la ligne hors toute taxe (Hors taxes parafiscales et hors TVA)",
+            "format" : "double"
+          },
+          "montantNet" : {
+            "type" : "number",
+            "description" : "montant net hors taxe de la ligne (Réductions et charges incluses)",
+            "format" : "double"
+          },
+          "codeTVA" : {
+            "type" : "string",
+            "description" : "Catégorie de TVA"
+          },
+          "TVA" : {
+            "type" : "number",
+            "description" : "taux de la TVA appliquée sur le produit. Indiquer Zéro si la facturation est exonérée de TVA. \n15.03.2019 Mis optionnel, sera obligatoire dans les controles BMS",
+            "format" : "double"
+          },
+          "baseTVA" : {
+            "type" : "number",
+            "description" : "NEW",
+            "format" : "double"
+          },
+          "montantTVA" : {
+            "type" : "number",
+            "description" : "NEW",
+            "format" : "double"
+          },
+          "periodeFacturation" : {
+            "type" : "array",
+            "description" : "Période de facturation",
+            "items" : {
+              "type" : "object"
+            }
+          },
+          "qteCommandee" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "uteQteCommandee" : {
+            "type" : "string"
+          },
+          "remiseCharge" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/remiseOuChargeType"
+            }
+          },
+          "taxeParafiscale" : {
+            "type" : "array",
+            "description" : "taxe parafiscale du produit",
+            "items" : {
+              "$ref" : "#/components/schemas/taxeParafiscale"
+            }
+          },
+          "commentaireLigne" : {
+            "type" : "array",
+            "description" : "Commentaire(s) de ligne",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "referenceList" : {
+            "$ref" : "#/components/schemas/referenceList"
+          },
+          "qteLivree" : {
+            "type" : "number",
+            "description" : "Quantité livrée",
+            "format" : "double"
+          },
+          "uteQteLivree" : {
+            "type" : "string",
+            "description" : "Unité de mesure de la quantité livrée"
+          },
+          "commentaireLigneQualifie" : {
+            "type" : "array",
+            "description" : "Commentaire(s) de ligne",
+            "items" : {
+              "$ref" : "#/components/schemas/commentType"
+            }
+          },
+          "referenceLignes" : {
+            "type" : "array",
+            "description" : "Réféfrence(s) de ligne",
+            "items" : {
+              "$ref" : "#/components/schemas/reference"
+            }
+          },
+          "taxe" : {
+            "type" : "array",
+            "description" : "Taxe(s) autres que la TVA",
+            "items" : {
+              "$ref" : "#/components/schemas/taxe"
+            }
+          },
+          "transport" : {
+            "type" : "array",
+            "description" : "Informations détaillées sur le transport\nTDT",
+            "items" : {
+              "$ref" : "#/components/schemas/transport"
+            }
+          },
+          "taxeRetenueSource" : {
+            "type" : "boolean",
+            "description" : "Indique que la valeur de base de la transaction est soumise à une retenue à la source, qu'il s'agisse d'un impôt payé d'avance ou d'un impôt définitif"
+          }
+        }
+      },
+      "montantType" : {
+        "required" : [
+          "montant"
+        ],
+        "type" : "object",
+        "properties" : {
+          "montant" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "devise" : {
+            "type" : "string"
+          },
+          "qualifiant" : {
+            "type" : "string"
+          },
+          "libelle" : {
+            "type" : "string"
+          }
+        }
+      },
+      "pieceType" : {
+        "type" : "object",
+        "properties" : {
+          "type" : {
+            "type" : "string",
+            "description" : "Exemple : KBIS, RIB, CGV"
+          },
+          "nom" : {
+            "type" : "string",
+            "description" : "Nom de la piece"
+          },
+          "contenu" : {
+            "type" : "string",
+            "description" : "contenu de la piece jointe en base64",
+            "format" : "binary"
+          },
+          "format" : {
+            "type" : "string",
+            "description" : "Format de la piece.Exemple : PDF, IMG, TXT, XML"
+          },
+          "debutValidite" : {
+            "type" : "string",
+            "description" : "Date de début de validité",
+            "format" : "date-time"
+          },
+          "finValidite" : {
+            "type" : "string",
+            "description" : "Date de fin de validité",
+            "format" : "date-time"
+          },
+          "URI" : {
+            "type" : "string",
+            "description" : "URI"
+          },
+          "URL" : {
+            "type" : "string",
+            "description" : "URL"
+          },
+          "dataKey" : {
+            "type" : "string",
+            "description" : "_p_OUTkey dans Orchestrade"
+          }
+        }
+      },
+      "piecesJointes" : {
+        "type" : "object",
+        "properties" : {
+          "piece" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/pieceType"
+            }
+          }
+        },
+        "description" : "Pièces jointes"
+      },
+      "recapTaxeRetenueSource" : {
+        "type" : "object",
+        "properties" : {
+          "type" : {
+            "type" : "string"
+          },
+          "montant" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "tauxRetenue" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "motif" : {
+            "type" : "string"
+          }
+        },
+        "description" : "Récap. taxe retenue à la source"
+      },
+      "regimeFiscal" : {
+        "type" : "object",
+        "properties" : {
+          "code" : {
+            "type" : "string"
+          },
+          "qualifiant" : {
+            "type" : "string"
+          },
+          "libelle" : {
+            "type" : "string"
+          }
+        }
+      },
+      "regimeFiscalClient" : {
+        "type" : "object",
+        "properties" : {
+          "code" : {
+            "type" : "string"
+          },
+          "qualifiant" : {
+            "type" : "string"
+          },
+          "libelle" : {
+            "type" : "string"
+          }
+        }
+      },
+      "taxe" : {
+        "type" : "object",
+        "properties" : {
+          "base" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "taux" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "codeTAX" : {
+            "type" : "string"
+          },
+          "montant" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "libelle" : {
+            "type" : "string"
+          }
+        },
+        "description" : "Taxe(s) autres que la TVA"
+      },
+      "timbreFiscal" : {
+        "type" : "object",
+        "properties" : {
+          "montant" : {
+            "type" : "number",
+            "format" : "double"
+          }
+        }
+      },
+      "transport" : {
+        "type" : "object",
+        "properties" : {
+          "qualifiant" : {
+            "type" : "string",
+            "description" : "Qualifiant de l'étape du transport\nTDT-8051\n20 = Transport principal"
+          },
+          "ref" : {
+            "type" : "string",
+            "description" : "Numéro de référence identifiant le transport\nTDT-8028"
+          },
+          "mode" : {
+            "type" : "string",
+            "description" : "Mode de transport (en code)\nTDT-C220.8067\n10 = Transport maritime\n20 = Transport ferroviaire\n30 = Transport routier\n40 = Transport aérien"
+          },
+          "transporteur" : {
+            "$ref" : "#/components/schemas/acteur"
+          },
+          "direction" : {
+            "type" : "string",
+            "description" : "Direction du transit (en code)\nTDT-8101\nBS = Acheteur à fournisseur\nSB = Fournisseur à acheteur"
+          },
+          "moyen" : {
+            "type" : "string",
+            "description" : "Identification du type de moyen de transport\nTDT-C228.8179\n23 = Wagon de vrac\n25 = Express rail\n31 = Camion"
+          },
+          "typeMoyen" : {
+            "type" : "string",
+            "description" : "Type du moyen de transport\nTDT-C228.8178"
+          },
+          "identification" : {
+            "$ref" : "#/components/schemas/identification"
+          }
+        },
+        "description" : "Informations détaillées sur le transport\nTDT"
+      },
+      "typeProduit" : {
+        "type" : "string",
+        "enum" : [
+          "FRF",
+          "FB"
+        ]
+      },
+      "ventilationTVA" : {
+        "required" : [
+          "ventilationTVAchild"
+        ],
+        "type" : "object",
+        "properties" : {
+          "ventilationTVAchild" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ventilationTVAchild"
+            }
+          }
+        },
+        "description" : "montant taotal de chaque TVA"
+      },
+      "ventilationTVAchild" : {
+        "required" : [
+          "base",
+          "taux",
+          "montant"
+        ],
+        "type" : "object",
+        "properties" : {
+          "base" : {
+            "type" : "number",
+            "description" : "Base sur laquelle le montant total de la TVA est calculée",
+            "format" : "double"
+          },
+          "taux" : {
+            "type" : "number",
+            "description" : "Taux de TVA de la facture",
+            "format" : "double"
+          },
+          "codeTVA" : {
+            "type" : "string",
+            "description" : "Code TVA"
+          },
+          "montant" : {
+            "type" : "number",
+            "description" : "Montant total de la TVA",
+            "format" : "double"
+          },
+          "libelle" : {
+            "type" : "string",
+            "description" : "NEW"
+          },
+          "codeTAX" : {
+            "type" : "string",
+            "description" : "NEW"
+          },
+          "exigibilite" : {
+            "type" : "string",
+            "description" : "Indiquer si la TVA est due immédiatement, ou le paiement de la TVA est différé, ou fractionné. (cf. démat. Italienne)"
+          },
+          "condExoneration" : {
+            "type" : "string"
+          }
+        }
+      },
+      "DocDematDoc" : {
+        "required" : [
+          "dematDocument"
+        ],
+        "type" : "object",
+        "properties" : {
+          "dematDocument" : {
+            "$ref" : "#/components/schemas/dematDocument"
+          }
+        }
+      },
+      "INVOIC" : {
+        "required" : [
+          "ligneList",
+          "vendeur",
+          "siege",
+          "reglerA",
+          "declarantTVA",
+          "livrerA",
+          "acheteur",
+          "factureA",
+          "livrerPar",
+          "agent",
+          "commanderPar",
+          "expedierDe",
+          "referenceList",
+          "emballage",
+          "mesure",
+          "remiseCharge",
+          "taxeParafiscale",
+          "ligneFacture",
+          "ligneNoteCredit",
+          "acomptes",
+          "condLivraison",
+          "ventilationTVAchild",
+          "ventilationTVA",
+          "escompte",
+          "penalite",
+          "echeances",
+          "remiseOuCharge",
+          "totalTaxeParafiscale",
+          "pied",
+          "dematDocument",
+          "DocDematDoc",
+          "dematInterchange"
+        ],
+        "type" : "object",
+        "properties" : {
+          "ligneList" : {
+            "type" : "string"
+          },
+          "vendeur" : {
+            "$ref" : "#/components/schemas/acteur"
+          },
+          "siege" : {
+            "$ref" : "#/components/schemas/acteur"
+          },
+          "reglerA" : {
+            "$ref" : "#/components/schemas/acteur"
+          },
+          "declarantTVA" : {
+            "$ref" : "#/components/schemas/acteur"
+          },
+          "livrerA" : {
+            "$ref" : "#/components/schemas/acteurLivrerA"
+          },
+          "acheteur" : {
+            "$ref" : "#/components/schemas/acteur"
+          },
+          "factureA" : {
+            "$ref" : "#/components/schemas/acteur"
+          },
+          "livrerPar" : {
+            "$ref" : "#/components/schemas/acteur"
+          },
+          "agent" : {
+            "$ref" : "#/components/schemas/acteur"
+          },
+          "commanderPar" : {
+            "$ref" : "#/components/schemas/acteur"
+          },
+          "expedierDe" : {
+            "$ref" : "#/components/schemas/acteur"
+          },
+          "referenceList" : {
+            "$ref" : "#/components/schemas/referenceList"
+          },
+          "emballage" : {
+            "$ref" : "#/components/schemas/emballage"
+          },
+          "mesure" : {
+            "$ref" : "#/components/schemas/mesure"
+          },
+          "remiseCharge" : {
+            "$ref" : "#/components/schemas/remiseOuChargeType"
+          },
+          "taxeParafiscale" : {
+            "$ref" : "#/components/schemas/taxeParafiscale"
+          },
+          "ligneFacture" : {
+            "$ref" : "#/components/schemas/ligneFactureType"
+          },
+          "ligneNoteCredit" : {
+            "$ref" : "#/components/schemas/ligneNoteCreditType"
+          },
+          "acomptes" : {
+            "$ref" : "#/components/schemas/acomptes"
+          },
+          "condLivraison" : {
+            "$ref" : "#/components/schemas/condLivraison"
+          },
+          "ventilationTVAchild" : {
+            "$ref" : "#/components/schemas/ventilationTVAchild"
+          },
+          "ventilationTVA" : {
+            "$ref" : "#/components/schemas/ventilationTVA"
+          },
+          "escompte" : {
+            "$ref" : "#/components/schemas/escompte"
+          },
+          "penalite" : {
+            "$ref" : "#/components/schemas/penalite"
+          },
+          "echeances" : {
+            "$ref" : "#/components/schemas/echeances"
+          },
+          "remiseOuCharge" : {
+            "$ref" : "#/components/schemas/remiseOuChargeType"
+          },
+          "totalTaxeParafiscale" : {
+            "$ref" : "#/components/schemas/totalTaxeParafiscaleType"
+          },
+          "pied" : {
+            "$ref" : "#/components/schemas/pied"
+          },
+          "dematDocument" : {
+            "$ref" : "#/components/schemas/dematDocument"
+          },
+          "DocDematDoc" : {
+            "$ref" : "#/components/schemas/DocDematDoc"
+          },
+          "dematInterchange" : {
+            "$ref" : "#/components/schemas/dematInterchange"
+          }
+        }
+      },
+      "montantsDevise" : {
+        "type" : "object",
+        "properties" : {
+          "deviseCible" : {
+            "maxLength" : 3,
+            "type" : "string",
+            "description" : "devise de paiement de la TVA"
+          },
+          "txChange" : {
+            "type" : "number",
+            "description" : "taux de change",
+            "format" : "double"
+          },
+          "dateTxChange" : {
+            "type" : "string",
+            "description" : "date du taux de change",
+            "format" : "date-time"
+          },
+          "montantDeviseHTTX" : {
+            "type" : "array",
+            "description" : "montant total hors toute taxe",
+            "items" : {
+              "$ref" : "#/components/schemas/montantType"
+            }
+          },
+          "montantDeviseTaxes" : {
+            "type" : "array",
+            "description" : "montant total des taxes",
+            "items" : {
+              "$ref" : "#/components/schemas/montantType"
+            }
+          },
+          "montantDeviseHTVA" : {
+            "type" : "array",
+            "description" : "total hors TVA",
+            "items" : {
+              "$ref" : "#/components/schemas/montantType"
+            }
+          },
+          "montantDeviseTTC" : {
+            "type" : "array",
+            "description" : "Total Toutes Charges comprises (TTC)",
+            "items" : {
+              "$ref" : "#/components/schemas/montantType"
+            }
+          },
+          "montantDeviseTVA" : {
+            "type" : "array",
+            "description" : "montant total de la TVA",
+            "items" : {
+              "$ref" : "#/components/schemas/montantType"
+            }
+          },
+          "montantDeviseNetRistournable" : {
+            "type" : "array",
+            "description" : "montant net ristournable",
+            "items" : {
+              "$ref" : "#/components/schemas/montantType"
+            }
+          },
+          "montantDeviseConsignes" : {
+            "type" : "array",
+            "description" : "montant total des consignes",
+            "items" : {
+              "$ref" : "#/components/schemas/montantType"
+            }
+          },
+          "montantDeviseTotalDu" : {
+            "type" : "array",
+            "description" : "montant dû/montant payable",
+            "items" : {
+              "$ref" : "#/components/schemas/montantType"
+            }
+          }
+        },
+        "description" : "A utiliser seuelement en Specifique"
+      },
+      "documentType" : {
+        "type" : "object",
+        "properties" : {
+          "qualifiant" : {
+            "type" : "string"
+          },
+          "libelle" : {
+            "type" : "string",
+            "description" : "généré AUTOmatiquement pour les références identifiées. Sinon si \"Autres références\" le libellé est à saisir."
+          },
+          "numero" : {
+            "type" : "string"
+          },
+          "dateDocument" : {
+            "type" : "object",
+            "description" : "Date et heure du document"
+          },
+          "statut" : {
+            "type" : "string",
+            "description" : "Staut du Document en code"
+          },
+          "statutLibelle" : {
+            "type" : "string",
+            "description" : "Libelle du statut du document"
+          },
+          "motif" : {
+            "type" : "string",
+            "description" : "Motif du statut du document"
+          },
+          "motifLibelle" : {
+            "type" : "string",
+            "description" : "Libelle du motif de statut"
+          },
+          "dateStatut" : {
+            "type" : "object",
+            "description" : "Date et heure de saisie de l'evenement"
+          },
+          "dateLivraisonProgrammee" : {
+            "type" : "object",
+            "description" : "Date/heure de livraison programmée"
+          },
+          "dateLivraisonReelle" : {
+            "type" : "object",
+            "description" : "Date/heure de livraison réelle"
+          },
+          "dateDepartProgrammee" : {
+            "type" : "object",
+            "description" : "Date/heure de départ programmée"
+          },
+          "DateMiseEnInstance" : {
+            "type" : "object",
+            "description" : "Date de mise en instance"
+          },
+          "DateRefus" : {
+            "type" : "object",
+            "description" : "Date de refus du produit"
+          },
+          "qteTotalColis" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "numeroTracking" : {
+            "type" : "string",
+            "description" : "Numéro du tracking"
+          },
+          "urlTracking" : {
+            "type" : "string",
+            "description" : "URL du tracking"
+          },
+          "ligne" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ligneOSTRPTType"
+            }
+          }
+        }
+      },
+      "documents" : {
+        "type" : "object",
+        "properties" : {
+          "commande" : {
+            "$ref" : "#/components/schemas/documentType"
+          },
+          "bonLivraison" : {
+            "$ref" : "#/components/schemas/documentType"
+          },
+          "ordreLogistique" : {
+            "$ref" : "#/components/schemas/documentType"
+          }
+        }
+      },
+      "emballageType" : {
+        "type" : "object",
+        "properties" : {
+          "qte" : {
+            "type" : "integer",
+            "description" : "nombre de colis",
+            "format" : "int32"
+          },
+          "type" : {
+            "type" : "string",
+            "description" : "identification du type d'emballage"
+          },
+          "qteParConditionnement" : {
+            "type" : "integer",
+            "description" : "Quantité par conditionnement (PCB)",
+            "format" : "int32"
+          },
+          "uteQteParConditionnement" : {
+            "type" : "string",
+            "description" : "Unité de mesure de la quantité par conditionnement"
+          },
+          "numeroSerieColis" : {
+            "type" : "string",
+            "description" : "Numéro de série du colis marqué"
+          },
+          "poidsBrut" : {
+            "type" : "string",
+            "description" : "Poids brut"
+          },
+          "utePoidsBrut" : {
+            "type" : "string"
+          },
+          "indiceColis" : {
+            "type" : "string",
+            "description" : "indice colis (notamment utilisé dans le contexte Cdiscount)"
+          },
+          "numeroLot" : {
+            "type" : "string",
+            "description" : "Numéro de lot marqué"
+          },
+          "SSCC" : {
+            "type" : "string",
+            "description" : "Numéro Séquentiel de Colis marqué"
+          },
+          "ean8Marquage" : {
+            "type" : "string"
+          },
+          "ean13Marquage" : {
+            "type" : "string"
+          },
+          "ean14Marquage" : {
+            "type" : "string"
+          },
+          "ean128Marquage" : {
+            "type" : "string"
+          }
+        },
+        "description" : "description du nombre et du type de colis ou unités physiques"
+      },
+      "ligneOSTRPTType" : {
+        "required" : [
+          "num"
+        ],
+        "type" : "object",
+        "properties" : {
+          "num" : {
+            "type" : "integer",
+            "description" : "numéro de ligne",
+            "format" : "int32"
+          },
+          "gtin" : {
+            "type" : "string",
+            "description" : "GTIN (numéro ean internationnal de l'article) sur 14 chiffre : mettre des zéros à gauche pour compléter."
+          },
+          "identificationComplementaireProduit" : {
+            "$ref" : "#/components/schemas/identificationComplementaireProduit"
+          },
+          "designationArticle" : {
+            "type" : "string",
+            "description" : "désignation du produit"
+          },
+          "typeUnite" : {
+            "type" : "string",
+            "description" : "Code d'identification du type d'article (unité logistique/unité conssomateur)"
+          },
+          "qteColis" : {
+            "type" : "number",
+            "description" : "quantité facturée",
+            "format" : "double"
+          },
+          "ligneCommande" : {
+            "type" : "string",
+            "description" : "Numéro de ligne de la commande"
+          },
+          "numeroTracking" : {
+            "type" : "string",
+            "description" : "Numéro du tracking"
+          },
+          "urlTracking" : {
+            "type" : "string",
+            "description" : "URL du tracking"
+          },
+          "statut" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/statut"
+            }
+          }
+        }
+      },
+      "referenceList" : {
+        "type" : "object",
+        "properties" : {
+          "commande" : {
+            "$ref" : "#/components/schemas/documentType"
+          },
+          "bonLivraison" : {
+            "$ref" : "#/components/schemas/documentType"
+          },
+          "ordreLogistique" : {
+            "$ref" : "#/components/schemas/documentType"
+          }
+        }
+      },
+      "statutOrdre" : {
+        "required" : [
+          "entete",
+          "acteurs",
+          "documents"
+        ],
+        "type" : "object",
+        "properties" : {
+          "entete" : {
+            "$ref" : "#/components/schemas/entete"
+          },
+          "acteurs" : {
+            "$ref" : "#/components/schemas/acteurs"
+          },
+          "documents" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/documents"
+            }
+          }
+        },
+        "description" : "Message Statut de l'ordre"
+      },
+      "schemaStatOrd" : {
+        "required" : [
+          "statutOrdre"
+        ],
+        "type" : "object",
+        "properties" : {
+          "statutOrdre" : {
+            "$ref" : "#/components/schemas/statutOrdre"
+          }
+        }
+      },
+      "IdentificationFinanciereType" : {
+        "type" : "object",
+        "properties" : {
+          "qual" : {
+            "type" : "string"
+          },
+          "monnaie" : {
+            "type" : "string"
+          },
+          "id" : {
+            "type" : "string"
+          },
+          "code_agence" : {
+            "type" : "string"
+          },
+          "agence" : {
+            "type" : "string"
+          },
+          "nom" : {
+            "type" : "string"
+          },
+          "compteBancaire" : {
+            "type" : "string"
+          },
+          "adresse" : {
+            "$ref" : "#/components/schemas/adresseType"
+          },
+          "BIC" : {
+            "type" : "string"
+          },
+          "IBAN" : {
+            "type" : "string"
+          }
+        }
+      },
+      "ORDERS" : {
+        "required" : [
+          "interchange",
+          "acheteur",
+          "centraleDAchat",
+          "livrerA",
+          "fournisseur",
+          "pointLivraisonFinal",
+          "factureA",
+          "expedierDe",
+          "transporteur",
+          "donneurOrdre",
+          "entrepot",
+          "clientFinal",
+          "siege",
+          "intervenant",
+          "referenceList",
+          "emballage",
+          "remiseCharge",
+          "ligneCommande",
+          "pied",
+          "documentCommande",
+          "declarantTVA",
+          "agent",
+          "taxeParafiscale",
+          "mesure",
+          "totalTaxeParafiscale",
+          "remiseOuCharge",
+          "escompte",
+          "penalite",
+          "echeances",
+          "schemaDocCommande",
+          "condLivraison",
+          "Expediteur"
+        ],
+        "type" : "object",
+        "properties" : {
+          "interchange" : {
+            "$ref" : "#/components/schemas/interchange"
+          },
+          "acheteur" : {
+            "$ref" : "#/components/schemas/acteur"
+          },
+          "centraleDAchat" : {
+            "$ref" : "#/components/schemas/acteur"
+          },
+          "livrerA" : {
+            "$ref" : "#/components/schemas/acteur"
+          },
+          "fournisseur" : {
+            "$ref" : "#/components/schemas/acteur"
+          },
+          "pointLivraisonFinal" : {
+            "$ref" : "#/components/schemas/acteur"
+          },
+          "factureA" : {
+            "$ref" : "#/components/schemas/acteur"
+          },
+          "expedierDe" : {
+            "$ref" : "#/components/schemas/acteur"
+          },
+          "transporteur" : {
+            "$ref" : "#/components/schemas/acteur"
+          },
+          "donneurOrdre" : {
+            "$ref" : "#/components/schemas/acteur"
+          },
+          "entrepot" : {
+            "$ref" : "#/components/schemas/acteur"
+          },
+          "clientFinal" : {
+            "$ref" : "#/components/schemas/acteur"
+          },
+          "siege" : {
+            "$ref" : "#/components/schemas/acteur"
+          },
+          "intervenant" : {
+            "$ref" : "#/components/schemas/acteur"
+          },
+          "referenceList" : {
+            "$ref" : "#/components/schemas/referenceListType"
+          },
+          "emballage" : {
+            "$ref" : "#/components/schemas/emballage"
+          },
+          "remiseCharge" : {
+            "$ref" : "#/components/schemas/remiseOuChargeType"
+          },
+          "ligneCommande" : {
+            "$ref" : "#/components/schemas/ligneCommandeType"
+          },
+          "pied" : {
+            "$ref" : "#/components/schemas/piedType"
+          },
+          "documentCommande" : {
+            "$ref" : "#/components/schemas/documentCommandeType"
+          },
+          "declarantTVA" : {
+            "$ref" : "#/components/schemas/acteur"
+          },
+          "agent" : {
+            "$ref" : "#/components/schemas/acteur"
+          },
+          "taxeParafiscale" : {
+            "$ref" : "#/components/schemas/taxeParafiscale1"
+          },
+          "mesure" : {
+            "$ref" : "#/components/schemas/mesure"
+          },
+          "totalTaxeParafiscale" : {
+            "$ref" : "#/components/schemas/totalTaxeParafiscaleType"
+          },
+          "remiseOuCharge" : {
+            "$ref" : "#/components/schemas/remiseOuChargeType"
+          },
+          "escompte" : {
+            "$ref" : "#/components/schemas/escompte"
+          },
+          "penalite" : {
+            "$ref" : "#/components/schemas/penalite"
+          },
+          "echeances" : {
+            "$ref" : "#/components/schemas/echeances"
+          },
+          "schemaDocCommande" : {
+            "$ref" : "#/components/schemas/schemaDocCommande"
+          },
+          "condLivraison" : {
+            "$ref" : "#/components/schemas/condLivraison"
+          },
+          "Expediteur" : {
+            "$ref" : "#/components/schemas/acteur"
+          }
+        }
+      },
+      "acteur" : {
+        "type" : "object",
+        "properties" : {
+          "qualifiant" : {
+            "type" : "string"
+          },
+          "nom" : {
+            "type" : "string"
+          },
+          "adresse" : {
+            "$ref" : "#/components/schemas/adresseType"
+          },
+          "RCS" : {
+            "type" : "string",
+            "description" : "code des registres du commerce (RCS)"
+          },
+          "numTVA" : {
+            "type" : "string"
+          },
+          "SIREN" : {
+            "type" : "string"
+          },
+          "SIRET" : {
+            "type" : "string"
+          },
+          "GLN" : {
+            "type" : "string"
+          },
+          "contactActeur" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/contactActeurType"
+            }
+          },
+          "IdentificationFinanciere" : {
+            "$ref" : "#/components/schemas/IdentificationFinanciereType"
+          },
+          "intracommunautaire" : {
+            "type" : "boolean",
+            "description" : "Utilisé pour l'acteur commandé. \r\nLes obligations légales de commande sont appliquées si le \"commandé à\" est intracommunautaire."
+          },
+          "code" : {
+            "type" : "string",
+            "description" : "Code interne de l'acteur"
+          },
+          "codeEmplacement" : {
+            "type" : "string",
+            "description" : "LOC_C517_3225"
+          }
+        }
+      },
+      "adresseType" : {
+        "type" : "object",
+        "properties" : {
+          "ligneList" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "cp" : {
+            "type" : "string"
+          },
+          "ville" : {
+            "type" : "string"
+          },
+          "pays" : {
+            "type" : "string"
+          }
+        }
+      },
+      "application" : {
+        "type" : "string",
+        "enum" : [
+          "AAE",
+          "CT"
+        ]
+      },
+      "commentType" : {
+        "type" : "object",
+        "properties" : {
+          "qualifiant" : {
+            "type" : "string",
+            "description" : "Qualifiant"
+          },
+          "libelle" : {
+            "type" : "string",
+            "description" : "Libelle"
+          },
+          "fonction" : {
+            "type" : "string",
+            "description" : "Fonction d'utilisation"
+          },
+          "texte" : {
+            "type" : "string",
+            "description" : "Texte"
+          },
+          "organisme" : {
+            "type" : "string",
+            "description" : "Organisme"
+          },
+          "langue" : {
+            "type" : "string",
+            "description" : "Code ISO 639, 2 positions alphabétiques"
+          },
+          "referenceTexte" : {
+            "type" : "string",
+            "description" : "Référence du texte"
+          }
+        }
+      },
+      "condDateRef" : {
+        "type" : "integer",
+        "format" : "int32",
+        "example" : 1,
+        "enum" : [
+          "1",
+          "2",
+          "3",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "11",
+          "12",
+          "21",
+          "23",
+          "26",
+          "27",
+          "28",
+          "29",
+          "52",
+          "66",
+          "67",
+          "68",
+          "69",
+          "70",
+          "72",
+          "78",
+          "79",
+          "81"
+        ]
+      },
+      "condLienTemp" : {
+        "type" : "string",
+        "enum" : [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "10",
+          "10E"
+        ]
+      },
+      "condLivraison" : {
+        "required" : [
+          "fonction",
+          "mode_paiement",
+          "code",
+          "lieu"
+        ],
+        "type" : "object",
+        "properties" : {
+          "fonction" : {
+            "type" : "string",
+            "description" : "fonction des conditions de livraison/transport"
+          },
+          "mode_paiement" : {
+            "type" : "string",
+            "description" : "mode de paiement des frais de transport"
+          },
+          "code" : {
+            "type" : "string",
+            "description" : "conditions de livraison ou de transport (en code)"
+          },
+          "lieu" : {
+            "type" : "array",
+            "description" : "lieu d'application des conditions de livraison",
+            "items" : {
+              "type" : "string"
+            }
+          }
+        },
+        "description" : "condtions de livraison pour l'expédition, les conditions de transport"
+      },
+      "conditionsLivraison" : {
+        "type" : "object",
+        "properties" : {
+          "fonction" : {
+            "type" : "string",
+            "description" : "Fonction"
+          },
+          "modePaiementFraisTrsp" : {
+            "type" : "string",
+            "description" : "Mode de paiement des frais de transport"
+          },
+          "codeIncoterm" : {
+            "type" : "string",
+            "description" : "Code incoterm"
+          },
+          "codeEmplacement" : {
+            "type" : "string",
+            "description" : "Code (C517.3225) ou nom de l'emplacement (C517.3224) // Si on souhaite mettre les deux, on met : (code#nomEmplacement)"
+          },
+          "priorite" : {
+            "type" : "string",
+            "description" : "Priorité d'expédition"
+          }
+        },
+        "description" : "Conditions de livraison"
+      },
+      "conditionsLivraison1" : {
+        "type" : "object",
+        "properties" : {
+          "fonction" : {
+            "type" : "string"
+          },
+          "modePaiementFraisTrsp" : {
+            "type" : "string"
+          },
+          "codeEmplacement" : {
+            "type" : "string"
+          }
+        },
+        "description" : "Conditions de livraison"
+      },
+      "contactActeurType" : {
+        "type" : "object",
+        "properties" : {
+          "code" : {
+            "type" : "string"
+          },
+          "fonction" : {
+            "type" : "string"
+          },
+          "lib" : {
+            "type" : "string"
+          },
+          "email" : {
+            "type" : "string"
+          },
+          "tel" : {
+            "type" : "string"
+          },
+          "fax" : {
+            "type" : "string"
+          },
+          "x400" : {
+            "type" : "string"
+          }
+        }
+      },
+      "dates" : {
+        "type" : "object",
+        "properties" : {
+          "auPlusTot" : {
+            "type" : "string",
+            "description" : "Date au plus tôt",
+            "format" : "date-time"
+          },
+          "auPlusTard" : {
+            "type" : "string",
+            "description" : "Date au plus tard",
+            "format" : "date-time"
+          },
+          "demandee" : {
+            "type" : "string",
+            "description" : "Date demandée",
+            "format" : "date-time"
+          },
+          "promise" : {
+            "type" : "string",
+            "description" : "Date promise",
+            "format" : "date-time"
+          },
+          "promiseAuPlusTot" : {
+            "type" : "string",
+            "description" : "Date promise au plus tôt",
+            "format" : "date-time"
+          },
+          "promiseAuPlusTard" : {
+            "type" : "string",
+            "description" : "Date promise au plus tard",
+            "format" : "date-time"
+          }
+        }
+      },
+      "description" : {
+        "type" : "object",
+        "properties" : {
+          "identification" : {
+            "type" : "string"
+          },
+          "libelle" : {
+            "type" : "string"
+          },
+          "langue" : {
+            "type" : "string"
+          }
+        }
+      },
+      "descriptionComplementaire" : {
+        "type" : "object",
+        "properties" : {
+          "type" : {
+            "type" : "string"
+          },
+          "caracteristique" : {
+            "type" : "string"
+          },
+          "description" : {
+            "$ref" : "#/components/schemas/description"
+          }
+        }
+      },
+      "documentCommandeType" : {
+        "required" : [
+          "entete",
+          "pied"
+        ],
+        "type" : "object",
+        "properties" : {
+          "version" : {
+            "type" : "string",
+            "description" : "Version du pivot"
+          },
+          "entete" : {
+            "$ref" : "#/components/schemas/entete"
+          },
+          "ligneCommande" : {
+            "type" : "array",
+            "description" : "Ligne commande",
+            "items" : {
+              "$ref" : "#/components/schemas/ligneCommandeType"
+            }
+          },
+          "pied" : {
+            "$ref" : "#/components/schemas/piedType"
+          }
+        }
+      },
+      "echeances" : {
+        "type" : "object",
+        "properties" : {
+          "condNbJours" : {
+            "type" : "integer",
+            "description" : "Nombre de jours",
+            "format" : "int32"
+          },
+          "condLienTemp" : {
+            "$ref" : "#/components/schemas/condLienTemp"
+          },
+          "condDateRef" : {
+            "$ref" : "#/components/schemas/condDateRef"
+          },
+          "condEcheance" : {
+            "type" : "string",
+            "description" : "Condition exprimée en texte libre."
+          },
+          "dateTime" : {
+            "type" : "array",
+            "description" : "Date d'échéance de paiement.",
+            "items" : {
+              "type" : "string",
+              "format" : "date-time"
+            }
+          },
+          "base" : {
+            "type" : "number",
+            "description" : "base à régler à échéance",
+            "format" : "double"
+          },
+          "taux" : {
+            "type" : "number",
+            "description" : "pourcentage de la commande à régler à échéance",
+            "format" : "double"
+          },
+          "montant" : {
+            "type" : "number",
+            "description" : "montant à régler à échéance",
+            "format" : "double"
+          }
+        },
+        "description" : "conditions d'échéances"
+      },
+      "emballage" : {
+        "type" : "object",
+        "properties" : {
+          "qte" : {
+            "type" : "integer",
+            "description" : "nombre de colis",
+            "format" : "int32"
+          },
+          "niv" : {
+            "type" : "string",
+            "description" : "niveau de conditionnement (en code)"
+          },
+          "info" : {
+            "type" : "array",
+            "description" : "informations de conditionnement (en code)",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "cond" : {
+            "type" : "string",
+            "description" : "conditions de conditionnement :\r\nExemple \"Frais de conditionnement payés par le fournisseur\""
+          },
+          "type" : {
+            "type" : "string",
+            "description" : "identification du type d'emballage"
+          },
+          "code" : {
+            "type" : "string"
+          },
+          "cond_retour" : {
+            "type" : "string",
+            "description" : "responsabilité du paiement des frais de retour d'emballage (en code)"
+          },
+          "PoidsBrutTotal" : {
+            "type" : "number",
+            "description" : "Poids brut Total",
+            "format" : "double"
+          },
+          "utePoidsBrutTotal" : {
+            "type" : "string",
+            "description" : "Unité de mesure Poids brut Total"
+          },
+          "ean8Marquage" : {
+            "type" : "string",
+            "description" : "Code EAN 8"
+          },
+          "ean13Marquage" : {
+            "type" : "string",
+            "description" : "Code EAN marqué"
+          },
+          "ean14Marquage" : {
+            "type" : "string",
+            "description" : "ITF 14"
+          },
+          "ean128Marquage" : {
+            "type" : "string",
+            "description" : "Code EAN 128 marquage"
+          },
+          "codeTracking" : {
+            "type" : "string",
+            "description" : "Code tracking colis"
+          },
+          "etiquette" : {
+            "type" : "array",
+            "description" : "Etiquette colis",
+            "items" : {
+              "$ref" : "#/components/schemas/etiquette"
+            }
+          }
+        },
+        "description" : "description du nombre et du type de colis ou unités physiques"
+      },
+      "enveloppe" : {
+        "required" : [
+          "index",
+          "numero",
+          "interchangeDateHeure",
+          "environnement",
+          "test",
+          "sens",
+          "emetteur",
+          "destinaire"
+        ],
+        "type" : "object",
+        "properties" : {
+          "index" : {
+            "type" : "integer",
+            "description" : "_p_index",
+            "format" : "int32"
+          },
+          "numero" : {
+            "type" : "string",
+            "description" : "Numéro d'interchange"
+          },
+          "interchangeDateHeure" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "environnement" : {
+            "type" : "string",
+            "description" : "Environnement utilisateur\r\n_p_TransactionEnv (Si commande émise)"
+          },
+          "test" : {
+            "type" : "boolean",
+            "description" : "Indicateur de test :Flux en test (0) ou en production (1)"
+          },
+          "sens" : {
+            "$ref" : "#/components/schemas/sens"
+          },
+          "version" : {
+            "type" : "string",
+            "description" : "Version de la dématérialisation [V02P01|V03P01|PDF|...]\r\n_p_BILLversion"
+          },
+          "emetteur" : {
+            "type" : "string",
+            "description" : "_p_msg_Sender"
+          },
+          "destinaire" : {
+            "type" : "string",
+            "description" : "_p_msg_Recipient"
+          }
+        },
+        "description" : "Enveloppe d'interchange"
+      },
+      "escompte" : {
+        "type" : "object",
+        "properties" : {
+          "base" : {
+            "type" : "number",
+            "description" : "base de calcul de l'escompte",
+            "format" : "double"
+          },
+          "qualBase" : {
+            "$ref" : "#/components/schemas/qualBase"
+          },
+          "taux" : {
+            "type" : "number",
+            "description" : "pourcentage d'escompte",
+            "format" : "double"
+          },
+          "montant" : {
+            "type" : "number",
+            "description" : "montant de l'échéance à régler",
+            "format" : "double"
+          },
+          "condEscompte" : {
+            "type" : "string",
+            "description" : "conditions d'escomptes (non encodables)"
+          },
+          "dateApplication" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string",
+              "format" : "date-time"
+            }
+          },
+          "condEscompteCodee" : {
+            "type" : "integer",
+            "description" : "Condition d'escompte codé en nombre de jours",
+            "format" : "int32"
+          }
+        },
+        "description" : "conditions d'escompte"
+      },
+      "etiquette" : {
+        "type" : "object",
+        "properties" : {
+          "format" : {
+            "type" : "string",
+            "description" : "Format (ie. A4, A5,..)"
+          },
+          "url" : {
+            "type" : "string",
+            "description" : "URL"
+          }
+        },
+        "description" : "Etiquette colis"
+      },
+      "interchange" : {
+        "required" : [
+          "enveloppe",
+          "interchangeDateTime",
+          "environnement",
+          "sens",
+          "destinataire",
+          "emetteur",
+          "interchangeId"
+        ],
+        "type" : "object",
+        "properties" : {
+          "enveloppe" : {
+            "$ref" : "#/components/schemas/enveloppe"
+          },
+          "interchangeDateTime" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "environnement" : {
+            "type" : "string",
+            "description" : "Environnement utilisateur (Client Artéva)"
+          },
+          "sens" : {
+            "$ref" : "#/components/schemas/sens"
+          },
+          "test" : {
+            "type" : "boolean",
+            "description" : "Flux en test => true\r\nFlux en production => false"
+          },
+          "destinataire" : {
+            "type" : "string",
+            "description" : "_p_msg_Recipient"
+          },
+          "emetteur" : {
+            "type" : "string",
+            "description" : "_p_msg_Sender"
+          },
+          "interchangeId" : {
+            "type" : "string"
+          }
+        },
+        "description" : "Interchange commande"
+      },
+      "ligneCommandeType" : {
+        "required" : [
+          "num"
+        ],
+        "type" : "object",
+        "properties" : {
+          "num" : {
+            "type" : "integer",
+            "description" : "numéro de ligne",
+            "format" : "int32"
+          },
+          "sousLigne" : {
+            "$ref" : "#/components/schemas/sousLigne"
+          },
+          "numSousLigne" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "numLigneCommandeClient" : {
+            "type" : "string"
+          },
+          "gtin" : {
+            "type" : "string",
+            "description" : "GTIN (numéro ean internationnal de l'article) sur 14 chiffre : mettre des zéros à gauche pour compléter."
+          },
+          "refArticleClient" : {
+            "type" : "string",
+            "description" : "référence client de l'article"
+          },
+          "refArticleFournisseur" : {
+            "type" : "string",
+            "description" : "référence fournisseur de l'article"
+          },
+          "variantePromo" : {
+            "type" : "string",
+            "description" : "variante promotionnelle de l'article"
+          },
+          "typeProduit" : {
+            "type" : "string",
+            "description" : "Type de produit \r\nFacture de biens (FB)\r\nFacture de services (FRF)"
+          },
+          "numeroSerie" : {
+            "type" : "string"
+          },
+          "designationArticle" : {
+            "type" : "string",
+            "description" : "désignation du produit"
+          },
+          "descriptionComplementaire" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/descriptionComplementaire"
+            }
+          },
+          "codeTypeArticle" : {
+            "type" : "string",
+            "description" : "type d'article (en code)"
+          },
+          "qteCommandee" : {
+            "type" : "number",
+            "description" : "quantité commandée",
+            "format" : "double"
+          },
+          "uteQteCommandee" : {
+            "type" : "string"
+          },
+          "qteGratuite" : {
+            "type" : "number",
+            "description" : "quantité gratuite",
+            "format" : "double"
+          },
+          "uteQteGratuite" : {
+            "type" : "string"
+          },
+          "qteConditionneeInferieure" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "uteQteConditionneeInferieure" : {
+            "type" : "string"
+          },
+          "qteConditionneeUL" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "uteQteConditionneeUL" : {
+            "type" : "string"
+          },
+          "qteConditionnee" : {
+            "type" : "number",
+            "description" : "quantité conditionnée",
+            "format" : "double"
+          },
+          "uteQteConditionnee" : {
+            "type" : "string"
+          },
+          "qteExpediee" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "uteQteExpediee" : {
+            "type" : "string"
+          },
+          "PrixPublic" : {
+            "$ref" : "#/components/schemas/prix"
+          },
+          "PUHTBrut" : {
+            "$ref" : "#/components/schemas/prix"
+          },
+          "PUHTNet" : {
+            "$ref" : "#/components/schemas/prix"
+          },
+          "dateDLUO" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "referenceOperationPromo" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "referenceContrat" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "emballage" : {
+            "type" : "array",
+            "description" : "description du nombre et du type de colis ou unités physiques",
+            "items" : {
+              "$ref" : "#/components/schemas/emballage"
+            }
+          },
+          "remiseCharge" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/remiseOuChargeType"
+            }
+          },
+          "comment" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/commentType"
+            }
+          },
+          "marcheCible" : {
+            "type" : "string"
+          },
+          "dateLivraisonDemandee" : {
+            "$ref" : "#/components/schemas/dates"
+          },
+          "montantNet" : {
+            "type" : "number",
+            "description" : "Montant Net de la ligne",
+            "format" : "double"
+          },
+          "dateEnlevementDemandee" : {
+            "$ref" : "#/components/schemas/dates"
+          },
+          "dateExpedition" : {
+            "$ref" : "#/components/schemas/dates"
+          },
+          "referenceLigne" : {
+            "type" : "array",
+            "description" : "Autre(s) reference(s) des lignes",
+            "items" : {
+              "$ref" : "#/components/schemas/reference"
+            }
+          },
+          "conditionsLivraison" : {
+            "$ref" : "#/components/schemas/conditionsLivraison1"
+          }
+        }
+      },
+      "mesure" : {
+        "required" : [
+          "valeur",
+          "ute",
+          "application",
+          "typeCode"
+        ],
+        "type" : "object",
+        "properties" : {
+          "valeur" : {
+            "type" : "number",
+            "description" : "Valeur de la mesure",
+            "format" : "double"
+          },
+          "ute" : {
+            "type" : "string",
+            "description" : "Unité de mesure"
+          },
+          "application" : {
+            "$ref" : "#/components/schemas/application"
+          },
+          "typeCode" : {
+            "$ref" : "#/components/schemas/typeCode"
+          }
+        },
+        "description" : "mesures du produit"
+      },
+      "penalite" : {
+        "type" : "object",
+        "properties" : {
+          "base" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "taux" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "condPenalite" : {
+            "type" : "string"
+          },
+          "forfaitPenalite" : {
+            "type" : "string"
+          },
+          "condNbJours" : {
+            "type" : "integer",
+            "description" : "Nombre de jours",
+            "format" : "int32"
+          },
+          "condLienTemp" : {
+            "$ref" : "#/components/schemas/condLienTemp"
+          },
+          "condDateRef" : {
+            "$ref" : "#/components/schemas/condDateRef"
+          }
+        },
+        "description" : "conditions de pénalité"
+      },
+      "piedType" : {
+        "type" : "object",
+        "properties" : {
+          "nombreLignesCommande" : {
+            "type" : "array",
+            "description" : "mode de paiement ou les garanties bancaires, en texte libre",
+            "items" : {
+              "type" : "number",
+              "format" : "double"
+            }
+          },
+          "montantTotalLignes" : {
+            "type" : "number",
+            "description" : "SG0-MOA+79",
+            "format" : "double"
+          },
+          "montantTotalTVA" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "montantTotalTTC" : {
+            "type" : "number",
+            "format" : "double"
+          }
+        }
+      },
+      "prix" : {
+        "required" : [
+          "prix"
+        ],
+        "type" : "object",
+        "properties" : {
+          "prix" : {
+            "type" : "number",
+            "description" : "Montant du prix",
+            "format" : "double"
+          },
+          "base" : {
+            "type" : "number",
+            "description" : "base du prix",
+            "format" : "double"
+          },
+          "ute" : {
+            "type" : "string",
+            "description" : "unité de mesure du prix"
+          },
+          "type" : {
+            "type" : "string",
+            "description" : "type du prix (Tarif spécial)"
+          },
+          "devise" : {
+            "type" : "string"
+          }
+        }
+      },
+      "qualBase" : {
+        "type" : "string",
+        "enum" : [
+          "01G",
+          "02G"
+        ]
+      },
+      "qualifiant" : {
+        "type" : "string",
+        "enum" : [
+          "C",
+          "A"
+        ]
+      },
+      "reference" : {
+        "type" : "object",
+        "properties" : {
+          "qualifiant" : {
+            "type" : "string"
+          },
+          "libelle" : {
+            "type" : "string",
+            "description" : "généré AUTOmatiquement pour les références identifiées. Sinon si \"Autres références\" le libellé est à saisir."
+          },
+          "numero" : {
+            "type" : "string"
+          },
+          "date" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }
+      },
+      "reference1" : {
+        "required" : [
+          "qualifiant"
+        ],
+        "type" : "object",
+        "properties" : {
+          "qualifiant" : {
+            "type" : "string"
+          },
+          "libelle" : {
+            "type" : "string"
+          },
+          "numero" : {
+            "type" : "string"
+          },
+          "date" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        },
+        "description" : "Autres références"
+      },
+      "referenceListType" : {
+        "type" : "object",
+        "properties" : {
+          "contrat" : {
+            "$ref" : "#/components/schemas/reference"
+          },
+          "operationPromotionnelle" : {
+            "$ref" : "#/components/schemas/reference"
+          },
+          "propositionCommande" : {
+            "$ref" : "#/components/schemas/reference"
+          },
+          "collection" : {
+            "$ref" : "#/components/schemas/reference"
+          },
+          "commandeClientFinal" : {
+            "$ref" : "#/components/schemas/reference"
+          },
+          "appelDOffre" : {
+            "$ref" : "#/components/schemas/reference"
+          }
+        }
+      },
+      "remiseOuChargeType" : {
+        "required" : [
+          "qualifiant",
+          "sequence",
+          "TVA",
+          "comptabilise"
+        ],
+        "type" : "object",
+        "properties" : {
+          "qualifiant" : {
+            "$ref" : "#/components/schemas/qualifiant"
+          },
+          "sequence" : {
+            "type" : "integer",
+            "description" : "No d'ordre d'application de la remise ou charge",
+            "format" : "int32"
+          },
+          "ean" : {
+            "type" : "integer",
+            "description" : "Code EAN de la remise ou de la charge",
+            "format" : "int32"
+          },
+          "base" : {
+            "type" : "number",
+            "description" : "Base de calcul de la remise ou de la charge",
+            "format" : "double"
+          },
+          "baseHTP" : {
+            "type" : "number",
+            "description" : "Base de calcul hors taxe parafiscale de la remise ou de la charge",
+            "format" : "double"
+          },
+          "baseATP" : {
+            "type" : "number",
+            "description" : "Base de calcul avec taxe parafiscale de la remise ou de la charge",
+            "format" : "double"
+          },
+          "montant" : {
+            "type" : "number",
+            "description" : "Montant de remise ou charge",
+            "format" : "double"
+          },
+          "baseP" : {
+            "type" : "number",
+            "description" : "Base du Pourcentage de remise ou charge",
+            "format" : "double"
+          },
+          "taux" : {
+            "type" : "number",
+            "description" : "Pourcentage de remise ou charge",
+            "format" : "double"
+          },
+          "codeTVA" : {
+            "type" : "string",
+            "description" : "Catégorie de TVA"
+          },
+          "TVA" : {
+            "type" : "number",
+            "description" : "Taux TVA applicable à la remise ou charge",
+            "format" : "double"
+          },
+          "libelle" : {
+            "type" : "string",
+            "description" : "Libelle de la remise ou charge"
+          },
+          "description" : {
+            "type" : "string",
+            "description" : "Description de la charge"
+          },
+          "comptabilise" : {
+            "type" : "boolean",
+            "description" : "déduit, en sus de la commande (true) ou hors commande (false)"
+          }
+        }
+      },
+      "sens" : {
+        "type" : "string",
+        "enum" : [
+          "E",
+          "R"
+        ]
+      },
+      "sousLigne" : {
+        "type" : "string",
+        "enum" : [
+          "A",
+          "D",
+          "I"
+        ]
+      },
+      "statut" : {
+        "required" : [
+          "code"
+        ],
+        "type" : "object",
+        "properties" : {
+          "code" : {
+            "type" : "string"
+          },
+          "libelle" : {
+            "type" : "string"
+          },
+          "date" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        },
+        "description" : "Statut"
+      },
+      "taxeParafiscale" : {
+        "required" : [
+          "qualifiant",
+          "sequence",
+          "montant",
+          "TVA",
+          "comptabilise"
+        ],
+        "type" : "object",
+        "properties" : {
+          "qualifiant" : {
+            "$ref" : "#/components/schemas/qualifiant"
+          },
+          "sequence" : {
+            "type" : "integer",
+            "description" : "No d'ordre d'application de la remise ou charge",
+            "format" : "int32"
+          },
+          "ean" : {
+            "type" : "integer",
+            "description" : "Code EAN de la taxe parafiscale",
+            "format" : "int32"
+          },
+          "base" : {
+            "type" : "string",
+            "description" : "Base de calcul de la taxe parafiscale"
+          },
+          "montant" : {
+            "type" : "number",
+            "description" : "Montant de la taxe parafiscale",
+            "format" : "double"
+          },
+          "codeTVA" : {
+            "type" : "string",
+            "description" : "Catégorie de TVA"
+          },
+          "TVA" : {
+            "type" : "number",
+            "description" : "TVA applicable à la taxe parafiscale",
+            "format" : "double"
+          },
+          "libelle" : {
+            "type" : "string",
+            "description" : "Libelle de la taxe parafiscale"
+          },
+          "description" : {
+            "type" : "string",
+            "description" : "Description de la taxe parafiscale"
+          },
+          "comptabilise" : {
+            "type" : "boolean",
+            "description" : "Indicateur de règlement: \n- false: Hors ordrePrepa\n- true : Taxe en sus  de la ordrePrepa"
+          }
+        }
+      },
+      "taxeParafiscale1" : {
+        "required" : [
+          "sequence",
+          "TVA",
+          "comptabilise"
+        ],
+        "type" : "object",
+        "properties" : {
+          "sequence" : {
+            "type" : "integer",
+            "description" : "No d'ordre d'application de la remise ou charge",
+            "format" : "int32"
+          },
+          "ean" : {
+            "type" : "integer",
+            "description" : "Code EAN de la remise ou de la charge",
+            "format" : "int32"
+          },
+          "base" : {
+            "type" : "number",
+            "description" : "Base de calcul de la taxe poarafiscale",
+            "format" : "double"
+          },
+          "baseHTP" : {
+            "type" : "number",
+            "description" : "Base de calcul hors taxe parafiscale de la taxe parafiscale",
+            "format" : "double"
+          },
+          "baseATP" : {
+            "type" : "number",
+            "description" : "Base de calcul avec taxe parafiscale de la taxe parafiscale",
+            "format" : "double"
+          },
+          "montant" : {
+            "type" : "number",
+            "description" : "Montant de la taxe parafiscale",
+            "format" : "double"
+          },
+          "baseP" : {
+            "type" : "string",
+            "description" : "Base du Pourcentage de la taxe parafiscale"
+          },
+          "taux" : {
+            "type" : "string",
+            "description" : "Taux de la taxe parafiscale"
+          },
+          "codeTVA" : {
+            "type" : "string",
+            "description" : "Catégorie de TVA appliquée à la taxe parafiscale"
+          },
+          "TVA" : {
+            "type" : "number",
+            "description" : "Taux TVA applicable à la taxe parafiscale",
+            "format" : "double"
+          },
+          "libelle" : {
+            "type" : "string",
+            "description" : "Libelle de la taxe parafiscale (Correspondant au code EAN)"
+          },
+          "comptabilise" : {
+            "type" : "boolean",
+            "description" : "déduit, en sus de la commande (true) ou hors commande (false)"
+          }
+        },
+        "description" : "taxe parafiscale du produit"
+      },
+      "totalTaxeParafiscaleType" : {
+        "required" : [
+          "montant",
+          "comptabilise"
+        ],
+        "type" : "object",
+        "properties" : {
+          "ean" : {
+            "type" : "integer",
+            "description" : "Code EAN de la taxe parafiscale",
+            "format" : "int32"
+          },
+          "montant" : {
+            "type" : "number",
+            "description" : "Montant de la taxe parafiscale",
+            "format" : "double"
+          },
+          "libelle" : {
+            "type" : "string",
+            "description" : "Description de la taxe parafiscale"
+          },
+          "comptabilise" : {
+            "type" : "boolean",
+            "description" : "Indicateur de règlement: \r\n- false: Hors commande\r\n- true : Taxe en sus  de la commande"
+          }
+        }
+      },
+      "transportPrincipal" : {
+        "type" : "object",
+        "properties" : {
+          "modeTransport" : {
+            "type" : "string",
+            "description" : "Mode de transport"
+          },
+          "moyenTransport" : {
+            "type" : "string",
+            "description" : "Moyen de transport"
+          },
+          "codeTransporteur" : {
+            "type" : "string",
+            "description" : "Code transporteur"
+          },
+          "nomTransporteur" : {
+            "type" : "string",
+            "description" : "Nom du transporteur"
+          },
+          "methodeExpedition" : {
+            "type" : "string",
+            "description" : "Methode d'expédition"
+          }
+        },
+        "description" : "Transport principal"
+      },
+      "typeCode" : {
+        "type" : "string",
+        "enum" : [
+          "AAC",
+          "AAD",
+          "AAW",
+          "NPP",
+          "ACV"
+        ]
+      },
+      "entete" : {
+        "required" : [
+          "type",
+          "fonction",
+          "ref",
+          "dateRef",
+          "acteurs"
+        ],
+        "type" : "object",
+        "properties" : {
+          "type" : {
+            "type" : "string",
+            "description" : "type de commande"
+          },
+          "typeOrder" : {
+            "type" : "string",
+            "description" : "Utilisé pour compléter le type de commande. Pour UGAP : SB(appro), NB(transport maitrisé), ZX(export)"
+          },
+          "RequestedResponseCoded" : {
+            "type" : "string",
+            "description" : "0004 : Conf. Non obligatoire \r\nZ005 : Conf obligatoire ss maj QTE Z006 : Conf obligatoire  avec maj QTE"
+          },
+          "fonction" : {
+            "type" : "string",
+            "description" : "Original/Duplicata"
+          },
+          "ref" : {
+            "type" : "string",
+            "description" : "Référence de la commande"
+          },
+          "dateRef" : {
+            "type" : "string",
+            "description" : "Date de la commande",
+            "format" : "date-time"
+          },
+          "devise" : {
+            "maxLength" : 3,
+            "type" : "string",
+            "description" : "devise de la commande"
+          },
+          "deviseCible" : {
+            "maxLength" : 3,
+            "type" : "string",
+            "description" : "devise de paiement de la facture"
+          },
+          "txChange" : {
+            "type" : "number",
+            "description" : "taux de change",
+            "format" : "double"
+          },
+          "dateTxChange" : {
+            "type" : "string",
+            "description" : "date du taux de change",
+            "format" : "date-time"
+          },
+          "dateLivraisonDemandee" : {
+            "$ref" : "#/components/schemas/dates"
+          },
+          "dateLivraisonPrevisionnelle" : {
+            "type" : "string",
+            "description" : "Date de livraison prévisionnelle",
+            "format" : "date-time"
+          },
+          "dateLivraisonContractuelle" : {
+            "type" : "string",
+            "description" : "Date de livraison contractuelle",
+            "format" : "date-time"
+          },
+          "dateEnlevement" : {
+            "$ref" : "#/components/schemas/dates"
+          },
+          "dateExpedition" : {
+            "$ref" : "#/components/schemas/dates"
+          },
+          "acteurs" : {
+            "$ref" : "#/components/schemas/acteurs"
+          },
+          "referenceList" : {
+            "$ref" : "#/components/schemas/referenceListType"
+          },
+          "reference" : {
+            "type" : "array",
+            "description" : "Autres références",
+            "items" : {
+              "$ref" : "#/components/schemas/reference1"
+            }
+          },
+          "conditionsLivraison" : {
+            "$ref" : "#/components/schemas/conditionsLivraison"
+          },
+          "transportPrincipal" : {
+            "type" : "array",
+            "description" : "Transport principal",
+            "items" : {
+              "$ref" : "#/components/schemas/transportPrincipal"
+            }
+          },
+          "comment" : {
+            "type" : "array",
+            "description" : "Commentaire",
+            "items" : {
+              "$ref" : "#/components/schemas/commentType"
+            }
+          },
+          "infoGenerale" : {
+            "type" : "array",
+            "description" : "FTX+GEN ou FTX+AAI",
+            "items" : {
+              "$ref" : "#/components/schemas/commentType"
+            }
+          },
+          "infoAchat" : {
+            "type" : "array",
+            "description" : "FTX+PUR",
+            "items" : {
+              "$ref" : "#/components/schemas/commentType"
+            }
+          },
+          "remarqueFournisseur" : {
+            "type" : "array",
+            "description" : "FTX+SUR",
+            "items" : {
+              "$ref" : "#/components/schemas/commentType"
+            }
+          },
+          "infoLivraison" : {
+            "type" : "array",
+            "description" : "FTX+DIN ou FTX+DEL",
+            "items" : {
+              "$ref" : "#/components/schemas/commentType"
+            }
+          },
+          "statut" : {
+            "$ref" : "#/components/schemas/statut"
+          },
+          "moyenPaiement" : {
+            "type" : "string",
+            "description" : "Moyen de paiement"
+          },
+          "messageCadeau" : {
+            "type" : "string",
+            "description" : "Message cadeau"
+          },
+          "bordereauExpeditionRequis" : {
+            "type" : "boolean",
+            "description" : "Bordereau D'expédition requis"
+          },
+          "livraisonPartielleAutorisee" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "schemaDocCommande" : {
+        "required" : [
+          "documentCommande"
+        ],
+        "type" : "object",
+        "properties" : {
+          "documentCommande" : {
+            "$ref" : "#/components/schemas/documentCommandeType"
+          }
+        }
+      },
+      "acompte" : {
+        "type" : "object",
+        "properties" : {
+          "Acompte" : {
+            "type" : "number",
+            "description" : "montant de l' acompte",
+            "format" : "double"
+          },
+          "refAcompte" : {
+            "type" : "string",
+            "description" : "numéro de paiement de l' acompte"
+          },
+          "dateAcompte" : {
+            "type" : "string",
+            "description" : "date de paiement de l' acompte",
+            "format" : "date-time"
+          },
+          "MontantDu" : {
+            "type" : "number",
+            "description" : "montant dû/montant payable",
+            "format" : "double"
+          }
+        }
+      },
+      "acteurs" : {
+        "type" : "object",
+        "properties" : {
+          "acheteur" : {
+            "$ref" : "#/components/schemas/acteur"
+          },
+          "centraleDAchat" : {
+            "$ref" : "#/components/schemas/acteur"
+          },
+          "livrerA" : {
+            "$ref" : "#/components/schemas/acteur"
+          },
+          "fournisseur" : {
+            "$ref" : "#/components/schemas/acteur"
+          },
+          "pointLivraisonFinal" : {
+            "$ref" : "#/components/schemas/acteur"
+          },
+          "factureA" : {
+            "$ref" : "#/components/schemas/acteur"
+          },
+          "expedierDe" : {
+            "$ref" : "#/components/schemas/acteur"
+          },
+          "transporteur" : {
+            "$ref" : "#/components/schemas/acteur"
+          },
+          "donneurOrdre" : {
+            "$ref" : "#/components/schemas/acteur"
+          },
+          "entrepot" : {
+            "$ref" : "#/components/schemas/acteur"
+          },
+          "clientFinal" : {
+            "$ref" : "#/components/schemas/acteur"
+          },
+          "siege" : {
+            "$ref" : "#/components/schemas/acteur"
+          },
+          "intervenant" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/acteur"
+            }
+          }
+        }
+      },
+      "ORDRSP" : {
+        "required" : [
+          "documentConfCommande"
+        ],
+        "type" : "object",
+        "properties" : {
+          "documentConfCommande" : {
+            "$ref" : "#/components/schemas/documentConfCommande"
+          }
+        }
+      },
+      "documentConfCommande" : {
+        "type" : "object"
+      }
+    },
+    "parameters" : {
+      "Token" : {
+        "name" : "Token",
+        "in" : "query",
+        "description" : "Token de l'utilisateur",
+        "required" : true,
+        "schema" : {
+          "type" : "string",
+          "default" : "null"
+        }
+      }
+    }
+  }
+}
